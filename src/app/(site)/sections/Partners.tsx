@@ -37,8 +37,6 @@ export default function Partners() {
 
   return (
     <Section id="partners" title="Partneri" kicker="Ďakujeme" center>
-      
-
       {/* Featured partner – väčší a nad ostatnými */}
       <FadeIn>
         <Link

@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { Menu, X, MapPin } from "lucide-react";
+import { Menu, X, MapPin, Instagram, Facebook } from "lucide-react";
 
 type NavItem = { id: string; label: string };
 
@@ -34,9 +34,7 @@ export default function Header() {
 
   // aktívna položka podľa viditeľnej sekcie
   useEffect(() => {
-    const sections = NAV_ITEMS.map((n) => document.getElementById(n.id)).filter(
-      Boolean
-    ) as HTMLElement[];
+    const sections = NAV_ITEMS.map((n) => document.getElementById(n.id)).filter(Boolean) as HTMLElement[];
     if (!sections.length) return;
 
     const obs = new IntersectionObserver(
@@ -132,10 +130,32 @@ export default function Header() {
               ))}
             </ul>
 
-            {/* Rezervácia – CTA na vlastnú stránku */}
+            {/* Rezervácia – CTA */}
             <Link href="/rezervacia" className="btn-accent ml-3">
               Rezervácia
             </Link>
+
+            {/* Social ikony */}
+            <div className="ml-2 flex items-center gap-2">
+              <a
+                href="https://www.instagram.com/historyclub.sk?igsh=czdtMmNrYTlldjM0"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Instagram"
+                className="inline-flex items-center justify-center rounded-xl border border-stone-300 bg-white p-2 text-stone-700 hover:bg-stone-100"
+              >
+                <Instagram size={18} />
+              </a>
+              <a
+                href="https://www.facebook.com/share/1Cwg8HGz1F/?mibextid=wwXIfr"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Facebook"
+                className="inline-flex items-center justify-center rounded-xl border border-stone-300 bg-white p-2 text-stone-700 hover:bg-stone-100"
+              >
+                <Facebook size={18} />
+              </a>
+            </div>
           </nav>
 
           {/* Mobile burger */}
@@ -175,6 +195,7 @@ export default function Header() {
               </li>
             ))}
 
+            {/* CTA + mapa + social */}
             <li className="mt-2 flex gap-2">
               <Link
                 href="/rezervacia"
@@ -189,6 +210,29 @@ export default function Header() {
                 aria-label="Mapa"
               >
                 <MapPin size={18} />
+              </a>
+            </li>
+
+            <li className="mt-2 flex gap-2">
+              <a
+                href="https://www.instagram.com/historyclub.sk?igsh=czdtMmNrYTlldjM0"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Instagram"
+                className="inline-flex flex-1 items-center justify-center rounded-xl border border-stone-300 bg-white px-4 py-3 text-sm font-medium shadow-sm hover:bg-stone-100"
+              >
+                <Instagram size={18} className="mr-2" />
+                Instagram
+              </a>
+              <a
+                href="https://www.facebook.com/share/1Cwg8HGz1F/?mibextid=wwXIfr"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Facebook"
+                className="inline-flex flex-1 items-center justify-center rounded-xl border border-stone-300 bg-white px-4 py-3 text-sm font-medium shadow-sm hover:bg-stone-100"
+              >
+                <Facebook size={18} className="mr-2" />
+                Facebook
               </a>
             </li>
           </ul>
