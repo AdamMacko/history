@@ -1,53 +1,70 @@
 "use client";
 
 import { useState } from "react";
-import { Calendar, Users, MapPin } from "lucide-react";
-import SeatModal, { Table } from "./SeatModal";
+import { useRouter } from "next/navigation";
+import { Calendar, Users, MapPin, ArrowLeft } from "lucide-react";
+import SectorModal from "../components/SectorModal";
+import SectorDetailModal from "../components/SectorDetailModal";
 
 export default function ReservationPage() {
+  const router = useRouter();
+
   // Form state
   const [fullName, setFullName] = useState("");
-  const [when, setWhen] = useState<string>("");           // datetime-local
-  const [partySize, setPartySize] = useState<number>(2);  // počet osôb
+  const [email, setEmail] = useState("");
+  const [when, setWhen] = useState<string>("");
+  const [partySize, setPartySize] = useState<number>(2);
   const [note, setNote] = useState("");
+
+  // Výber sektora
+  const [sectorOpen, setSectorOpen] = useState(false);
+  const [selectedSector, setSelectedSector] = useState<string | null>(null);
+
+  // Výber stolov v sektore
+  const [sectorDetailOpen, setSectorDetailOpen] = useState(false);
   const [selectedTables, setSelectedTables] = useState<string[]>([]);
+  const [totalSeatsPicked, setTotalSeatsPicked] = useState<number>(0);
 
-  // Modal
-  const [seatOpen, setSeatOpen] = useState(false);
-
-  // DEMO rozloženie stolov (nahradíš reálnymi dátami)
-  const tables: Table[] = [
-    { id: "A1", name: "A1", seats: 5, sectorId: "A", joinGroup: "A-10" },
-    { id: "A2", name: "A2", seats: 5, sectorId: "A", joinGroup: "A-10" },
-    { id: "B1", name: "B1", seats: 4, sectorId: "B" },
-    { id: "B2", name: "B2", seats: 4, sectorId: "B" },
-    { id: "C1", name: "C1", seats: 2, sectorId: "C" },
-    { id: "C2", name: "C2", seats: 2, sectorId: "C", unavailable: true },
-    { id: "C3", name: "C3", seats: 2, sectorId: "C" },
-  ];
+  function handleBack() {
+    if (typeof window !== "undefined" && window.history.length > 1) {
+      router.back();
+    } else {
+      router.push("/");
+    }
+  }
 
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    // TODO: tu prepojíme na backend / Google Sheet / DB
     console.log({
       fullName,
+      email,
       when,
       partySize,
+      selectedSector,
       selectedTables,
+      totalSeatsPicked,
       note,
     });
     alert("Rezervácia odoslaná (demo). Pozri konzolu pre payload.");
   }
 
-  const totalSeatsPicked = tables
-    .filter((t) => selectedTables.includes(t.id))
-    .reduce((s, t) => s + t.seats, 0);
-
   return (
     <main className="mx-auto max-w-3xl px-4 py-16 md:py-24">
+      {/* Späť */}
+      <div className="mb-4">
+        <button
+          type="button"
+          onClick={handleBack}
+          className="inline-flex items-center gap-2 rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm hover:bg-stone-50"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Späť
+        </button>
+      </div>
+
       <h1 className="mb-2 text-3xl font-semibold tracking-tight">Rezervácia</h1>
       <p className="mb-8 text-stone-600">
-        Vyplň údaje a vyber si sedenie. Výber stolov prebehne v modalnom okne na celú obrazovku.
+        Vyplň údaje a vyber si sektor a stoly.
       </p>
 
       <form
@@ -64,6 +81,20 @@ export default function ReservationPage() {
             onChange={(e) => setFullName(e.target.value)}
             className="mt-2 w-full rounded-xl border border-stone-300 bg-white px-3 py-2 outline-none ring-0 focus:border-stone-400"
             placeholder="Ján Novák"
+          />
+        </div>
+
+        {/* E-mail */}
+        <div>
+          <label className="block text-sm font-medium text-stone-900">E-mail</label>
+          <input
+            type="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="mt-2 w-full rounded-xl border border-stone-300 bg-white px-3 py-2 outline-none ring-0 focus:border-stone-400"
+            placeholder="meno@priklad.sk"
+            autoComplete="email"
           />
         </div>
 
@@ -99,26 +130,34 @@ export default function ReservationPage() {
           </div>
         </div>
 
-        {/* Výber sedenia */}
-        <div className="rounded-xl border border-stone-200 p-4">
+        {/* Výber sektora + stolov */}
+        <div className="space-y-3 rounded-xl border border-stone-200 p-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="text-sm text-stone-700">
+              Sektor: <span className="font-medium">{selectedSector ?? "—"}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setSectorOpen(true)}
+                className="btn-accent inline-flex items-center gap-2"
+              >
+                <MapPin className="h-4 w-4" />
+                Vybrať sektor (mapa)
+              </button>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
+            <div>
               Vybrané stoly:{" "}
               <span className="font-medium">
                 {selectedTables.length ? selectedTables.join(", ") : "—"}
-              </span>{" "}
-              <span className="text-stone-500">
-                (spolu sedačiek: {totalSeatsPicked} / potrebných {partySize})
               </span>
             </div>
-            <button
-              type="button"
-              onClick={() => setSeatOpen(true)}
-              className="btn-accent inline-flex items-center gap-2"
-            >
-              <MapPin className="h-4 w-4" />
-              Vybrať sedenie
-            </button>
+            <div className="text-stone-600">
+              Spolu sedačiek: {totalSeatsPicked} / potrebných {partySize}
+            </div>
           </div>
         </div>
 
@@ -130,7 +169,6 @@ export default function ReservationPage() {
             value={note}
             onChange={(e) => setNote(e.target.value)}
             className="mt-2 w-full rounded-xl border border-stone-300 bg-white px-3 py-2 outline-none ring-0 focus:border-stone-400"
-            placeholder="Preferencie k stolu, narodeniny, atď."
           />
         </div>
 
@@ -139,9 +177,12 @@ export default function ReservationPage() {
             type="reset"
             onClick={() => {
               setFullName("");
+              setEmail("");
               setWhen("");
               setPartySize(2);
+              setSelectedSector(null);
               setSelectedTables([]);
+              setTotalSeatsPicked(0);
               setNote("");
             }}
             className="inline-flex items-center justify-center rounded-xl border border-stone-300 bg-white px-4 py-2 text-sm font-medium hover:bg-stone-50"
@@ -154,14 +195,28 @@ export default function ReservationPage() {
         </div>
       </form>
 
-      {/* MODAL – výber sedenia */}
-      <SeatModal
-        open={seatOpen}
-        onClose={() => setSeatOpen(false)}
-        tables={tables}
-        partySize={partySize}
+      {/* MODAL – výber sektora z hlavnej mapy */}
+      <SectorModal
+        open={sectorOpen}
+        value={selectedSector}
+        onSelect={(sector) => {
+          setSelectedSector(sector);
+          setSectorOpen(false);
+          setSectorDetailOpen(true); // hneď otvoríme detail
+        }}
+        onClose={() => setSectorOpen(false)}
+      />
+
+      {/* MODAL – detail sektora, klikateľné stoly */}
+      <SectorDetailModal
+        open={sectorDetailOpen}
+        sector={selectedSector}
         value={selectedTables}
-        onChange={setSelectedTables}
+        onChange={(tables, meta) => {
+          setSelectedTables(tables);
+          setTotalSeatsPicked(meta.totalSeats);
+        }}
+        onClose={() => setSectorDetailOpen(false)}
       />
     </main>
   );
