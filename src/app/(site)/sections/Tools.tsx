@@ -15,9 +15,9 @@ import { useState } from "react";
 
 type GearItem = {
   name: string;
-  img: string;      // URL fotky (dočasne z historyclub.sk alebo hocikde)
-  specs?: string[]; // krátke body k technike
-  href?: string;    // voliteľne – link na väčšiu fotku/stránku (inak sa použije img)
+  img: string;    
+  specs?: string[]; 
+  href?: string;    
 };
 
 type Category = {
@@ -34,23 +34,51 @@ const CATEGORIES: Category[] = [
     icon: Volume2,
     items: [
       {
-        name: "PA sústava",
-        img: "https://www.historyclub.sk/wp-content/uploads/2021/07/IMG_3542-scaled.jpg",
-        specs: ["Top + Sub (full-range)", "Výkon pre menšie aj väčšie akcie"],
+        name: "Martin Audio",
+        img: "https://www.historyclub.sk/slideShow/sound_stage/sound02.webp",
+        
       },
       {
-        name: "Mix & processing",
-        img: "https://www.historyclub.sk/wp-content/uploads/2021/07/IMG_3519.jpg",
-        specs: ["Digitálny mix", "EQ, kompresia, efekty"],
+        name: "Martin Audio",
+        img: "https://www.historyclub.sk/slideShow/sound_stage/sound03.webp",
+        
       },
-      {
-        name: "Mikrofóny",
-        img: "https://www.historyclub.sk/wp-content/uploads/2021/07/IMG_3522.jpg",
-        specs: ["Dynamické + kondenzátorové", "Bezdrôtové sady podľa dohody"],
+       {
+        name: "Soundcraft GB2",
+        img: "https://www.historyclub.sk/slideShow/sound_stage/sound04.webp",
       },
+       {
+        name: "Soundcraft GB2",
+        img: "https://www.historyclub.sk/slideShow/sound_stage/sound05.webp",
+      },
+       {
+        name: "Soundcraft GB2",
+        img: "https://www.historyclub.sk/slideShow/sound_stage/sound06.webp",
+      },
+       {
+        name: "Lexicon MX400",
+        img: "https://www.historyclub.sk/slideShow/sound_stage/sound07.webp",
+      },
+       {
+        name: "Lexicon MX400",
+        img: "https://www.historyclub.sk/slideShow/sound_stage/sound08.webp",
+      },
+       {
+        name: "ECLER",
+        img: "https://www.historyclub.sk/slideShow/sound_stage/sound09.webp",
+      },
+       {
+        name: "ECLER",
+        img: "https://www.historyclub.sk/slideShow/sound_stage/sound10.webp",
+      },
+       {
+        name: "Martin Audio",
+        img: "https://www.historyclub.sk/slideShow/sound_stage/sound11.webp",
+      },
+      
     ],
   },
-  {
+ /* {
     key: "lights",
     label: "Svetlá",
     icon: Lightbulb,
@@ -66,7 +94,7 @@ const CATEGORIES: Category[] = [
         specs: ["Strobo, beam, haze", "Programovanie podľa eventu"],
       },
     ],
-  },
+  },*/
   {
     key: "stage",
     label: "Pódium / backline",
@@ -74,18 +102,13 @@ const CATEGORIES: Category[] = [
     items: [
       {
         name: "Pódium",
-        img: "https://www.historyclub.sk/wp-content/uploads/2021/07/IMG_3560.jpg",
+        img: "https://www.historyclub.sk/slideShow/sound_stage/stage01.webp",
         specs: ["Konfigurovateľné usporiadanie", "Rýchly stage setup"],
-      },
-      {
-        name: "Backline (dohodou)",
-        img: "https://www.historyclub.sk/wp-content/uploads/2021/07/IMG_3539-scaled.jpg",
-        specs: ["Základná zostava", "Možnosť doplniť špecifiká"],
       },
     ],
   },
-  {
-    key: "video",
+/*   {
+   key: "video",
     label: "Projekcia",
     icon: Tv,
     items: [
@@ -95,7 +118,7 @@ const CATEGORIES: Category[] = [
         specs: ["Jukebox", "Hudobné & športové prenosy"],
       },
     ],
-  },
+  },*/
   {
     key: "games",
     label: "Zábava",
@@ -103,13 +126,8 @@ const CATEGORIES: Category[] = [
     items: [
       {
         name: "Biliard",
-        img: "https://www.historyclub.sk/wp-content/uploads/brizy/imgs/09-small-310x206x18x0x274x206x1578581604.jpg",
+        img: "https://www.historyclub.sk/slideShow/club/04.webp",
         specs: ["Udržiavaný stôl", "K dispozícii tága & gule"],
-      },
-      {
-        name: "Stolný futbal",
-        img: "https://www.historyclub.sk/wp-content/uploads/brizy/imgs/08-310x206x18x0x274x206x1578581558.jpg",
-        specs: ["Pevný stôl", "Rýchla, zábavná klasika"],
       },
     ],
   },
@@ -185,7 +203,6 @@ export default function Tools() {
                 alt={item.name}
                 fill
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
-                // pokiaľ neladíme images/domény v next.config, nech je to bez optimalizácie
                 unoptimized
                 sizes="(max-width: 768px) 100vw, 50vw"
               />

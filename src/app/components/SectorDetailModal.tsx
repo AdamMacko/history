@@ -62,10 +62,14 @@ export default function SectorDetailModal({ open, sector, value, onChange, onClo
       const id = (g as SVGGElement).id; // napr. "T21"
       (g as SVGGElement).style.cursor = "pointer";
 
-      // hlavný tvar pre zvýraznenie
-      const mainShape =
-        (g.querySelector<SVGElement>(`#rectangle${id}`)) ||
-        (g.querySelector<SVGElement>("path,rect"));
+   
+const mainShape =
+  g.querySelector<SVGElement>(`#rectangle${id}`) ??
+  g.querySelector<SVGElement>(`#ellipse${id}`) ??
+  g.querySelector<SVGElement>(`#circle${id}`) ??
+  g.querySelector<SVGElement>("rect,ellipse,circle") ??
+  g.querySelector<SVGElement>("path");
+
 
       // kapacita – prvý <text> s číslom (nie "č.xx")
       let seats = 0;

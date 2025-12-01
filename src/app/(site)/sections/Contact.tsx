@@ -13,23 +13,21 @@ import {
 } from "lucide-react";
 import { Stagger, FadeIn } from "../../components/motion";
 
-// ====== Doplň reálne údaje podniku ======
 const OPERATOR = {
   company: "History Art & Music Club",
   name: "Igor Lebloch",
   email: "info@historyclub.sk",
-  phoneDisplay: "+421 000 000 000",
-  phone: "+421000000000",
+  phoneDisplay: "0918 538 954",
+  phone: "0918 538 954",
   addressLine1: "Štefánikova 27",
   addressLine2: "066 01 Humenné",
 };
 
 const SOUND_ENGINEER = {
   role: "Zvukár / technik",
-  name: "Meno Priezvisko",
-  email: "sound@historyclub.sk",
-  phoneDisplay: "+421 000 000 000",
-  phone: "+421000000000",
+  name: "SULY",
+  phoneDisplay: "0905 284 137",
+  phone: "0905 284 137",
 };
 
 const HOURS: { day: string; open: string; note?: string }[] = [
@@ -39,11 +37,11 @@ const HOURS: { day: string; open: string; note?: string }[] = [
   { day: "Nedeľa", open: "16:00 - 22:30"},
 ];
 
-// ====== Mapa a navigácia ======
+
 const MAP_QUERY = `${OPERATOR.addressLine1}, ${OPERATOR.addressLine2}`;
 const MAP_EMBED_SRC = "https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d383.40081570143155!2d21.904933565491884!3d48.933675569705265!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zNDjCsDU2JzAxLjYiTiAyMcKwNTQnMTguNSJF!5e1!3m2!1ssk!2ssk!4v1762727766603!5m2!1ssk!2ssk";
 
-// Ak poznáš GPS, doplň a smerovanie bude presné:
+
 const DEST = {
   name: "History Art & Music Club",
   address: `${OPERATOR.addressLine1}, ${OPERATOR.addressLine2}`,
@@ -115,12 +113,6 @@ export default function Contact() {
             <p className="font-medium">{SOUND_ENGINEER.name}</p>
           </div>
           <div className="mt-4 space-y-2 text-sm">
-            <a
-              href={`mailto:${SOUND_ENGINEER.email}`}
-              className="inline-flex items-center gap-2 underline decoration-stone-300 hover:decoration-stone-600"
-            >
-              <Mail className="h-4 w-4" /> {SOUND_ENGINEER.email}
-            </a>
             <br />
             <a
               href={`tel:${SOUND_ENGINEER.phone}`}

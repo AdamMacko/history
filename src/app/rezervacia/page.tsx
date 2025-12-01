@@ -33,20 +33,63 @@ export default function ReservationPage() {
     }
   }
 
-  function onSubmit(e: React.FormEvent) {
+   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    console.log({
-      fullName,
-      email,
-      when,
-      partySize,
-      selectedSector,
-      selectedTables,
-      totalSeatsPicked,
-      note,
-    });
-    alert("Rezervácia odoslaná (demo). Pozri konzolu pre payload.");
+
+    // základná validácia
+    if (!fullName || !email || !when || !partySize || partySize < 1) {
+      alert("Vyplň meno, email, dátum a čas a počet osôb (min. 1).");
+      return;
+    }
+
+    // voliteľne – kontrola na minulosť
+    const whenDate = new Date(when);
+    if (Number.isNaN(whenDate.getTime()) || whenDate.getTime() < Date.now()) {
+      alert("Zvoľ dátum a čas v budúcnosti.");
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/reservation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fullName,
+          email,
+          when,
+          partySize,
+          selectedSector,
+          selectedTables,
+          totalSeatsPicked,
+          note,
+        }),
+      });
+
+      const json = await res.json();
+      console.log("RESPONSE /api/reservation:", res.status, json);
+
+      if (!res.ok || !json.ok) {
+        alert(json.error ?? "Chyba pri odoslaní rezervácie.");
+        return;
+      }
+
+      alert("Rezervácia bola odoslaná. Ďakujeme! 😊");
+
+      // reset formulára
+      setFullName("");
+      setEmail("");
+      setWhen("");
+      setPartySize(2);
+      setSelectedSector(null);
+      setSelectedTables([]);
+      setTotalSeatsPicked(0);
+      setNote("");
+    } catch (err) {
+      console.error("FETCH ERROR /api/reservation:", err);
+      alert("Nepodarilo sa odoslať rezerváciu, skús to prosím neskôr.");
+    }
   }
+
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-16 md:py-24">

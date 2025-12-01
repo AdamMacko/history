@@ -27,7 +27,7 @@ export default function SeatingSectors({ selected, onSelect, className }: Props)
     const root = host.querySelector("svg");
     if (!root) return;
 
-    // vyber len top-level skupiny sektorov (bez -shape/-label…)
+  
     const sectors = Array.from(
       root.querySelectorAll<SVGGElement>(
         'g[id^="sector-"]:not([id$="-shape"]):not([id$="-shapeSmall"]):not([id$="-shapeLine"]):not([id$="-label"]):not([id$="-labelSmall"]):not([id$="-labelLine"])'
@@ -85,7 +85,6 @@ export default function SeatingSectors({ selected, onSelect, className }: Props)
     <div
       ref={ref}
       className={["seating-svg", className].filter(Boolean).join(" ")}
-      // vložíme SVG ako HTML (potrebujeme zachovať ID a štruktúru)
       dangerouslySetInnerHTML={{ __html: svg }}
     />
   );

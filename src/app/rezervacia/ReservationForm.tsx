@@ -19,23 +19,43 @@ export default function ReservationForm() {
     const name = String(fd.get("name") ?? "").trim();
     const datetimeStr = String(fd.get("datetime") ?? "");
     const people = Number(fd.get("people") ?? 0);
+    const table = fd.get("table"); // ⬅ pridáme aj stôl
 
     if (!name || !datetimeStr || !people || people < 1) {
       alert("Doplň meno, dátum a čas a počet ľudí (minimálne 1).");
       return;
     }
 
-    // voliteľná kontrola na minulosť
     const when = new Date(datetimeStr);
     if (Number.isNaN(+when) || when.getTime() < Date.now()) {
       alert("Zvoľ dátum a čas v budúcnosti.");
       return;
     }
 
-    // TODO: fetch("/api/rezervacia", { method: "POST", body: fd });
+    try {
+      
+      const res = await fetch("/api/reservation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name,
+          datetime: datetimeStr,
+          people,
+          table: table ? String(table) : "",
+        }),
+      });
 
-    setStatus("success");
-    (e.currentTarget as HTMLFormElement).reset();
+      const json = await res.json();
+      if (!res.ok || !json.ok) {
+        throw new Error(json.error || "Chyba pri odosielaní");
+      }
+
+      setStatus("success");
+      (e.currentTarget as HTMLFormElement).reset();
+    } catch (err) {
+      console.error(err);
+      alert("Nepodarilo sa odoslať rezerváciu, skús to prosím neskôr.");
+    }
   }
 
   return (
@@ -83,7 +103,7 @@ export default function ReservationForm() {
           />
         </div>
 
-        {/* Počet ľudí (povinné) */}
+        {/* Počet ľudí */}
         <div>
           <label htmlFor="people" className="block text-sm font-medium text-stone-900">
             Počet ľudí <span className="font-normal text-stone-400">(povinné)</span>
@@ -100,7 +120,7 @@ export default function ReservationForm() {
           />
         </div>
 
-        {/* Číslo stola (nepovinné) */}
+        {/* Číslo stola */}
         <div>
           <label htmlFor="table" className="block text-sm font-medium text-stone-900">
             Číslo stola <span className="font-normal text-stone-400">(nepovinné)</span>

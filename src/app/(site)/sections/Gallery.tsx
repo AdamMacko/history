@@ -7,27 +7,22 @@ import { Stagger, FadeIn } from "../../components/motion";
 
 
 type Photo = {
-  src: string;   // URL obrázka (dočasne z webu History)
-  alt: string;   // krátky popis pre a11y/SEO
-  href?: string; // voliteľne – ak chceš linknúť na stránku eventu, inak sa použije src
+  src: string; 
+  alt: string;
+  href?: string; 
 };
 
 const PHOTOS: Photo[] = [
-  // TODO: nahraď tieto URL za reálne linky z historyclub.sk
-  { src: "https://www.historyclub.sk/wp-content/uploads/2020/01/03.jpg", alt: "Koncert – atmosféra" },
-  { src: "https://www.historyclub.sk/wp-content/uploads/2020/01/04.jpg", alt: "Pódium a svetlá" },
-  { src: "https://www.historyclub.sk/wp-content/uploads/brizy/imgs/01-310x207x18x0x274x207x1578580883.jpg", alt: "Tanečný parket" },
-  { src: "https://www.historyclub.sk/wp-content/uploads/2020/01/02.jpg", alt: "DJ set" },
-  { src: "https://www.historyclub.sk/wp-content/uploads/brizy/imgs/06-310x207x18x0x274x207x1578581476.jpg", alt: "Jam session" },
-  { src: "https://www.historyclub.sk/wp-content/uploads/brizy/imgs/05-310x207x18x0x274x207x1578581445.jpg", alt: "Výstava & performance" },
-  { src: "https://www.historyclub.sk/wp-content/uploads/2020/01/07.jpg", alt: "Publikum" },
-  { src: "https://www.historyclub.sk/wp-content/uploads/brizy/imgs/09-small-310x206x18x0x274x206x1578581604.jpg", alt: "Svetelný dizajn" },
-  { src: "https://www.historyclub.sk/wp-content/uploads/brizy/imgs/10-310x207x18x0x274x207x1578582303.jpg", alt: "Detail pódia" },
+  { src: "https://www.historyclub.sk/slideShow/club/01.webp", alt: "Koncert – atmosféra" },
+  { src: "https://www.historyclub.sk/slideShow/club/05.webp", alt: "Pódium a svetlá" },
+  { src: "https://www.historyclub.sk/slideShow/club/03.webp", alt: "Tanečný parket" },
+  { src: "https://www.historyclub.sk/slideShow/club/04.webp", alt: "DJ set" },
+  { src: "https://www.historyclub.sk/slideShow/club/02.webp", alt: "Jam session" },
 ];
 
 export default function Gallery() {
   return (
-    <Section id="gallery" title="Galéria" center description="Momentky z podujatí.">
+    <Section id="gallery" title="Galéria" center description="Club">
       
 
       <Stagger className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4">
@@ -46,7 +41,6 @@ export default function Gallery() {
                 alt={p.alt}
                 fill
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
-                // Kým nepovolíme doménu v next.config, nech to nerieši optimalizáciu
                 unoptimized
                 sizes="(max-width: 768px) 50vw, 33vw"
               />

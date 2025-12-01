@@ -4,10 +4,10 @@
   /* ACCENT – base #8FABD4 */
   --accent-300: #BBD2EA;
   --accent-400: #A4C2E1;
-  --accent-500: #8FABD4; /* tvoja farba */
+  --accent-500: #8FABD4; 
   --accent-600: #6F95C5;
-  --accent-700: #527DB6; /* primár na tlačidlá */
-  --accent-800: #3D6CA8; /* hover/darker */
+  --accent-700: #527DB6; 
+  --accent-800: #3D6CA8; 
 
   --accent-ring: var(--accent-300);
 }
@@ -28,4 +28,33 @@ html { scroll-behavior: smooth; }
 /* tenká podčiarka nadpisu s gradientom akcentu */
 .accent-underline{
   background: linear-gradient(to right, var(--accent-500), var(--accent-700));
+}
+
+/* SVG sectors */
+.seating-svg svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* kurzor na sektoroch */
+.seating-svg .sector-hit { cursor: pointer; outline: none; }
+
+/* pri hover zvýrazníme tvary vnútri skupiny (path/rect/polygon/ellipse) */
+.seating-svg .sector-hit.is-hover path,
+.seating-svg .sector-hit.is-hover rect,
+.seating-svg .sector-hit.is-hover polygon,
+.seating-svg .sector-hit.is-hover ellipse {
+  filter: drop-shadow(0 6px 12px rgba(0,0,0,.18));
+  transform: translateZ(0); /* vyhladenie */
+}
+
+/* pri vybranom sektore ešte jemne orámujeme + “tint” */
+.seating-svg .sector-hit.is-selected path,
+.seating-svg .sector-hit.is-selected rect,
+.seating-svg .sector-hit.is-selected polygon,
+.seating-svg .sector-hit.is-selected ellipse {
+  stroke: #8FABD4;           
+  stroke-width: 3px;
+  filter: drop-shadow(0 8px 18px rgba(143,171,212,.35));
 }

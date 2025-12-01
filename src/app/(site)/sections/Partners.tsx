@@ -5,15 +5,15 @@ import { Stagger, FadeIn } from "../../components/motion";
 
 type Partner = {
   name: string;
-  logo: string; // URL obrázka loga
-  href: string; // odkaz na partnera
+  logo: string;
+  href: string; 
 };
 
 const PARTNERS: Partner[] = [
   {
     name: "Partner 1",
     logo: "https://www.historyclub.sk/wp-content/uploads/brizy/imgs/FPU_logo1_modre-scaled-966x724x0x177x966x369x1580910669.jpg",
-    href: "https://www.partner1.sk/",
+    href: "https://www.fpu.sk/sk/",
   },
   {
     name: "Partner 2",
@@ -23,12 +23,12 @@ const PARTNERS: Partner[] = [
   {
     name: "Partner 3",
     logo: "https://www.historyclub.sk/wp-content/uploads/brizy/imgs/greco-logo-dark-281x105x0x0x281x105x1580911067.png",
-    href: "https://www.partner3.sk/",
+    href: "https://www.grecoreklama.sk/",
   },
   {
     name: "Partner 4",
     logo: "https://www.historyclub.sk/wp-content/uploads/brizy/imgs/KOFOLA_LOGO-248x188x0x1x248x186x1676923457.jpg",
-    href: "https://www.partner4.sk/",
+    href: "https://www.kofola.sk/",
   },
 ];
 
@@ -37,7 +37,7 @@ export default function Partners() {
 
   return (
     <Section id="partners" title="Partneri" kicker="Ďakujeme" center>
-      {/* Featured partner – väčší a nad ostatnými */}
+      
       <FadeIn>
         <Link
           href={FEATURED.href}
@@ -59,7 +59,7 @@ export default function Partners() {
         </Link>
       </FadeIn>
 
-      {/* Ostatní partneri v mriežke */}
+    
       <Stagger className="grid grid-cols-2 gap-4 md:grid-cols-3">
         {OTHERS.map((p) => (
           <Link

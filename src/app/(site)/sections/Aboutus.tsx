@@ -3,19 +3,7 @@ import { Music, Mic2, Film, Palette, Briefcase, Users, Target, Tv } from "lucide
 import { Stagger, FadeIn } from "../../components/motion";
 
 export default function Aboutus() {
-  const events = [
-    "koncerty",
-    "párty",
-    "jam session",
-    "súťaže",
-    "workshopy",
-    "výstavy",
-    "prednášky",
-    "firemné akcie",
-    "oslavy",
-    "stretnutia spolužiakov",
-    "iné podľa dohody",
-  ];
+
 
   const amenities = [
     { icon: Music,     label: "Multifunkčný priestor so špičkovým ozvučením a svetlami" },
@@ -40,31 +28,27 @@ export default function Aboutus() {
             </h1>
 
             <p className="mt-5 max-w-3xl leading-relaxed text-stone-700">
-              Myšlienkou, ktorá inšpirovala vznik History Art &amp; Music Club, bola snaha o vytvorenie
-              priestoru pre umenie v&nbsp;komplexnej podobe. V&nbsp;Humennom si u nás vychutnáte
-              zážitky z&nbsp;hudby, divadla, filmu, tanca, výtvarného umenia a čohokoľvek zaujímavého.
+              History Art &amp; Music Club je hudobný klub v širšom centre Humenného, v ktorom
+              pravidelne organizujeme koncerty, kvízy, piatkové párty s lokálnymi DJ-mi, divadelné
+              predstavenia, filmové, hudobné a športové prenosy, besedy, prednášky, aj výstavy.
+              Hlavná časť klubu disponuje kapacitou cce 150 miest s možnosťou online rezervácie.
+              Pre súkromné oslavy a stretnutia v uzavretom priestore ponúkame backstage s kapacitou
+              do 20 osôb.
             </p>
 
             <p className="mt-4 max-w-3xl leading-relaxed text-stone-700">
-              Svojou kapacitou a zvukovým vybavením patríme medzi málo miest v širšom regióne,
-              ktoré ponúkajú skutočne multifunkčný priestor vhodný pre rôzne podujatia.
+              Už päť rokov po sebe čapujeme pivo ocenené Hviezdou Sládkov. V našej ponuke nájdete
+              alko, nealko aj miešané nápoje, ako aj výber vín zo starostlivo zostavenej vínnej
+              karty someliérom so slovenskými aj svetovými vínami. Nechýba ani vodná fajka s
+              možnosťou výberu renomovaných shisha tabakov alebo beznikotínových náplní. Zahrať si
+              u nás môžete biliard, stolný futbal, šípky, spoločenské hry.
             </p>
 
-            <div className="mt-8">
-              <h3 className="text-sm font-semibold text-stone-900">Organizujeme</h3>
+            <p className="mt-4 max-w-3xl leading-relaxed text-stone-700">
+              V History zažijete výnimočnú atmosféru každý deň – od veľkých koncertov až po malé
+              stretnutia v bežných dňoch!
+            </p>
 
-              {/* chipy so stagger animáciou */}
-              <Stagger className="mt-3 flex flex-wrap gap-2">
-                {events.map((e) => (
-                  <span
-                    key={e}
-                    className="inline-block rounded-full border border-stone-300 bg-white px-3 py-1 text-sm text-stone-800 shadow-sm"
-                  >
-                    {e}
-                  </span>
-                ))}
-              </Stagger>
-            </div>
           </div>
 
           {/* Pravý stĺpec – box s vybavením */}
