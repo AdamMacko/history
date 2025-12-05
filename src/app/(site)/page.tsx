@@ -7,11 +7,12 @@ import Contact from "./sections/Contact";
 import HeroSlideshow from "../components/HeroSlideshow";
 import SiteFooter from "../components/SiteFooter";
 
+export const dynamic = "force-dynamic";
 
 export default function Home() {
   return (
     <>
-    <HeroSlideshow />
+      <HeroSlideshow />
       <Aboutus />
       <Program />
       <Tools />
