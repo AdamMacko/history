@@ -12,22 +12,22 @@ type Partner = {
 const PARTNERS: Partner[] = [
   {
     name: "Partner 1",
-    logo: "https://www.historyclub.sk/slideShow/club/fond_na_podporu_umenia.jpg",
+    logo: "https://media.historyclub.sk/slideShow/club/fond_na_podporu_umenia.jpg",
     href: "https://www.fpu.sk/sk/",
   },
   {
     name: "Partner 2",
-    logo: "https://www.historyclub.sk/slideShow/club/pubquiz.png",
+    logo: "https://media.historyclub.sk/slideShow/club/pubquiz.png",
     href: "https://www.facebook.com/share/1EsqoQoHdA/?mibextid=wwXIfr",
   },
   {
     name: "Partner 3",
-    logo: "https://www.historyclub.sk/slideShow/club/greco.png",
+    logo: "https://media.historyclub.sk/slideShow/club/greco.png",
     href: "https://www.grecoreklama.sk/",
   },
   {
     name: "Partner 4",
-    logo: "https://www.historyclub.sk/slideShow/club/kofola.jpg",
+    logo: "https://media.historyclub.sk/slideShow/club/kofola.jpg",
     href: "https://www.kofola.sk/",
   },
 ];

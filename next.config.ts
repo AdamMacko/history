@@ -5,6 +5,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { protocol: "https", hostname: "historyclub.sk" },
       { protocol: "https", hostname: "www.historyclub.sk" },
+        { protocol: "https", hostname: "media.historyclub.sk" },
       { protocol: "https", hostname: "cdn.sanity.io" },
     ],
   },

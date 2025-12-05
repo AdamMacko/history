@@ -30,7 +30,7 @@ export default function Aboutus() {
               History Art &amp; Music Club je hudobný klub v širšom centre Humenného, v ktorom
               pravidelne organizujeme koncerty, kvízy, piatkové párty s lokálnymi DJ-mi, divadelné
               predstavenia, filmové, hudobné a športové prenosy, besedy, prednášky, aj výstavy.
-              Hlavná časť klubu disponuje kapacitou cce 150 miest s možnosťou online rezervácie.
+              Hlavná časť klubu disponuje kapacitou cca 150 miest s možnosťou online rezervácie.
               Pre súkromné oslavy a stretnutia v uzavretom priestore ponúkame backstage s kapacitou
               do 20 osôb.
             </p>

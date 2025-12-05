@@ -13,11 +13,11 @@ type Photo = {
 };
 
 const PHOTOS: Photo[] = [
-  { src: "https://www.historyclub.sk/slideShow/club/01.webp", alt: "Koncert – atmosféra" },
-  { src: "https://www.historyclub.sk/slideShow/club/05.webp", alt: "Pódium a svetlá" },
-  { src: "https://www.historyclub.sk/slideShow/club/03.webp", alt: "Tanečný parket" },
-  { src: "https://www.historyclub.sk/slideShow/club/04.webp", alt: "DJ set" },
-  { src: "https://www.historyclub.sk/slideShow/club/02.webp", alt: "Jam session" },
+  { src: "https://media.historyclub.sk/slideShow/club/01.webp", alt: "Koncert – atmosféra" },
+  { src: "https://media.historyclub.sk/slideShow/club/05.webp", alt: "Pódium a svetlá" },
+  { src: "https://media.historyclub.sk/slideShow/club/03.webp", alt: "Tanečný parket" },
+  { src: "https://media.historyclub.sk/slideShow/club/04.webp", alt: "DJ set" },
+  { src: "https://media.historyclub.sk/slideShow/club/02.webp", alt: "Jam session" },
 ];
 
 export default function Gallery() {

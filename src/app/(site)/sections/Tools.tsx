@@ -35,45 +35,45 @@ const CATEGORIES: Category[] = [
     items: [
       {
         name: "Martin Audio",
-        img: "https://www.historyclub.sk/slideShow/sound_stage/sound02.webp",
+        img: "https://media.historyclub.sk/slideShow/sound_stage/sound02.webp",
 
       },
       {
         name: "Martin Audio",
-        img: "https://www.historyclub.sk/slideShow/sound_stage/sound03.webp",
+        img: "https://media.historyclub.sk/slideShow/sound_stage/sound03.webp",
 
       },
       {
         name: "Soundcraft GB2",
-        img: "https://www.historyclub.sk/slideShow/sound_stage/sound04.webp",
+        img: "https://media.historyclub.sk/slideShow/sound_stage/sound04.webp",
       },
       {
         name: "Soundcraft GB2",
-        img: "https://www.historyclub.sk/slideShow/sound_stage/sound05.webp",
+        img: "https://media.historyclub.sk/slideShow/sound_stage/sound05.webp",
       },
       {
         name: "Soundcraft GB2",
-        img: "https://www.historyclub.sk/slideShow/sound_stage/sound06.webp",
+        img: "https://media.historyclub.sk/slideShow/sound_stage/sound06.webp",
       },
       {
         name: "Lexicon MX400",
-        img: "https://www.historyclub.sk/slideShow/sound_stage/sound07.webp",
+        img: "https://media.historyclub.sk/slideShow/sound_stage/sound07.webp",
       },
       {
         name: "Lexicon MX400",
-        img: "https://www.historyclub.sk/slideShow/sound_stage/sound08.webp",
+        img: "https://media.historyclub.sk/slideShow/sound_stage/sound08.webp",
       },
       {
         name: "ECLER",
-        img: "https://www.historyclub.sk/slideShow/sound_stage/sound09.webp",
+        img: "https://media.historyclub.sk/slideShow/sound_stage/sound09.webp",
       },
       {
         name: "ECLER",
-        img: "https://www.historyclub.sk/slideShow/sound_stage/sound10.webp",
+        img: "https://media.historyclub.sk/slideShow/sound_stage/sound10.webp",
       },
       {
         name: "Martin Audio",
-        img: "https://www.historyclub.sk/slideShow/sound_stage/sound11.webp",
+        img: "https://media.historyclub.sk/slideShow/sound_stage/sound11.webp",
       },
 
     ],
@@ -86,7 +86,7 @@ const CATEGORIES: Category[] = [
     items: [
       {
         name: "Pódium",
-        img: "https://www.historyclub.sk/slideShow/sound_stage/stage01.webp",
+        img: "https://media.historyclub.sk/slideShow/sound_stage/stage01.webp",
         specs: ["Konfigurovateľné usporiadanie", "Rýchly stage setup"],
       },
     ],
@@ -99,17 +99,17 @@ const CATEGORIES: Category[] = [
     items: [
       {
         name: "Biliard",
-        img: "https://www.historyclub.sk/slideShow/sound_stage/biliard.webp",
+        img: "https://media.historyclub.sk/slideShow/sound_stage/biliard.webp",
         specs: ["Udržiavaný stôl", "K dispozícii tága & gule"],
       },
        {
         name: "Šípky",
-        img: "https://www.historyclub.sk/slideShow/sound_stage/sipky.webp",
+        img: "https://media.historyclub.sk/slideShow/sound_stage/sipky.webp",
         specs: [],
       },
       {
         name: "Stolný futbal",
-        img: "https://www.historyclub.sk/slideShow/sound_stage/stolny_futbal.webp",
+        img: "https://media.historyclub.sk/slideShow/sound_stage/stolny_futbal.webp",
         specs: [],
       },
     ],

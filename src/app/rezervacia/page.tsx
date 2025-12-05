@@ -357,7 +357,7 @@ export default function ReservationPage() {
           />
         </div>
 
-        {/* FANCY ALERT – presunutý sem nad tlačidlá */}
+       
         {status !== "idle" && statusMessage && (
           <div
             className={[

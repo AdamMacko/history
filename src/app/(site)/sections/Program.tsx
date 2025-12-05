@@ -65,15 +65,19 @@ export default async function Program() {
                     ].join(" ")}
                     aria-label={`Otvoriť plagát – ${ev.title}`}
                   >
-                    <div className="relative aspect-[3/4]">
-                      <Image
-                        src={ev.posterUrl}
-                        alt={`Plagát – ${ev.title}`}
-                        fill
-                        className="object-cover transition-transform duration-500 group-hover:scale-105"
-                        sizes="(max-width: 768px) 100vw, 40vw"
-                      />
+                    {/* wrapper aby to na mobile nebolo mega vysoké */}
+                    <div className="relative mx-auto w-full max-w-[360px] sm:max-w-none">
+                      <div className="relative aspect-[2/3] sm:aspect-[3/4]">
+                        <Image
+                          src={ev.posterUrl}
+                          alt={`Plagát – ${ev.title}`}
+                          fill
+                          className="object-contain transition-transform duration-500 group-hover:scale-105"
+                          sizes="(max-width: 768px) 90vw, 40vw"
+                        />
+                      </div>
                     </div>
+
                     <span className="pointer-events-none absolute bottom-2 right-2 inline-flex items-center gap-1 rounded-full bg-white/95 px-2.5 py-1 text-xs font-medium text-stone-800 ring-1 ring-stone-200 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                       Otvoriť plagát <ExternalLink className="h-3.5 w-3.5" />
                     </span>
@@ -87,7 +91,7 @@ export default async function Program() {
                     {dateLabel} · {timeLabel}
                   </p>
                   {ev.shortDescription && (
-                    <p className="mt-4 leading-relaxed text-stone-700">
+                    <p className="mt-4 leading-relaxed text-stone-700 whitespace-pre-line break-words">
                       {ev.shortDescription}
                     </p>
                   )}

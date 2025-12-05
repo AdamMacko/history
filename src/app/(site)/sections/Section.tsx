@@ -98,7 +98,7 @@ export default function Section({
             {description && (
               <motion.p
                 variants={item}
-                className={[
+                className={[ 
                   "mt-3 text-stone-600",
                   center ? "mx-auto max-w-2xl" : "max-w-3xl",
                 ].join(" ")}
