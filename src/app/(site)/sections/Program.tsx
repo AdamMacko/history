@@ -4,6 +4,8 @@ import { ExternalLink } from "lucide-react";
 import { Stagger } from "../../components/motion";
 import { fetchUpcomingEvents, Event } from "@/lib/sanity.client";
 
+export const dynamic = "force-dynamic";
+
 function formatDateLabel(iso: string) {
   const d = new Date(iso);
   return new Intl.DateTimeFormat("sk-SK", {
@@ -65,7 +67,6 @@ export default async function Program() {
                     ].join(" ")}
                     aria-label={`Otvoriť plagát – ${ev.title}`}
                   >
-                    {/* wrapper aby to na mobile nebolo mega vysoké */}
                     <div className="relative mx-auto w-full max-w-[360px] sm:max-w-none">
                       <div className="relative aspect-[2/3] sm:aspect-[3/4]">
                         <Image
