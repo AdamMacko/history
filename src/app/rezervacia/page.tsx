@@ -2,9 +2,24 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Calendar, Users, MapPin, ArrowLeft } from "lucide-react";
+import { Calendar, Users, MapPin, ArrowLeft, Loader2 } from "lucide-react";
 import SectorModal from "../components/SectorModal";
 import SectorDetailModal from "../components/SectorDetailModal";
+
+const CUTOFF_BOOKING_HOUR = 19;
+const CUTOFF_BOOKING_MINUTE = 30;
+
+const MAX_ARRIVAL_HOUR = 21;
+const MAX_ARRIVAL_MINUTE = 30;
+const MAX_PEOPLE = 16;
+
+function isSameCalendarDay(a: Date, b: Date): boolean {
+  return (
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate()
+  );
+}
 
 export default function ReservationPage() {
   const router = useRouter();
@@ -25,6 +40,11 @@ export default function ReservationPage() {
   const [selectedTables, setSelectedTables] = useState<string[]>([]);
   const [totalSeatsPicked, setTotalSeatsPicked] = useState<number>(0);
 
+  // Fancy alert stavy
+  const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
   function handleBack() {
     if (typeof window !== "undefined" && window.history.length > 1) {
       router.back();
@@ -33,26 +53,112 @@ export default function ReservationPage() {
     }
   }
 
-   async function onSubmit(e: React.FormEvent) {
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    // základná validácia
-    if (!fullName || !email || !when || !partySize || partySize < 1) {
-      alert("Vyplň meno, email, dátum a čas a počet osôb (min. 1).");
+    setStatus("idle");
+    setStatusMessage(null);
+
+    // === FRONTEND VALIDÁCIE ===
+    if (!fullName.trim()) {
+      setStatus("error");
+      setStatusMessage("Zadaj prosím meno a priezvisko.");
       return;
     }
 
-    // voliteľne – kontrola na minulosť
-    const whenDate = new Date(when);
-    if (Number.isNaN(whenDate.getTime()) || whenDate.getTime() < Date.now()) {
-      alert("Zvoľ dátum a čas v budúcnosti.");
+    if (!email.trim()) {
+      setStatus("error");
+      setStatusMessage("Zadaj prosím e-mail.");
       return;
     }
 
+    if (!when) {
+      setStatus("error");
+      setStatusMessage("Vyber dátum a čas rezervácie.");
+      return;
+    }
+
+    if (partySize < 1 || partySize > MAX_PEOPLE) {
+      setStatus("error");
+      setStatusMessage(
+        `Počet osôb musí byť medzi 1 a ${MAX_PEOPLE}.`
+      );
+      return;
+    }
+
+    const selected = new Date(when);
+    const now = new Date();
+
+    if (Number.isNaN(+selected)) {
+      setStatus("error");
+      setStatusMessage("Neplatný dátum a čas.");
+      return;
+    }
+
+    // Rezervácia nesmie byť do minulosti
+    if (selected.getTime() < now.getTime()) {
+      setStatus("error");
+      setStatusMessage(
+        "Rezerváciu nie je možné vytvoriť do minulosti."
+      );
+      return;
+    }
+
+    // Celkový limit príchodu – najneskôr 21:30
+    {
+      const selectedMinutes =
+        selected.getHours() * 60 + selected.getMinutes();
+      const maxArrivalMinutes =
+        MAX_ARRIVAL_HOUR * 60 + MAX_ARRIVAL_MINUTE;
+
+      if (selectedMinutes > maxArrivalMinutes) {
+        setStatus("error");
+        setStatusMessage(
+          "Najneskorší čas príchodu na rezervovaný stôl je 21:30."
+        );
+        return;
+      }
+    }
+
+    // Na DNES možno rezervovať len do 19:30 (podľa aktuálneho času)
+    if (isSameCalendarDay(selected, now)) {
+      const cutoffToday = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate(),
+        CUTOFF_BOOKING_HOUR,
+        CUTOFF_BOOKING_MINUTE,
+        0,
+        0
+      );
+
+      if (now > cutoffToday) {
+        setStatus("error");
+        setStatusMessage(
+          "Na dnešný večer je možné rezervovať najneskôr do 19:30."
+        );
+        return;
+      }
+    }
+
+    // Musí byť vybraný sektor a aspoň jeden stôl
+    if (!selectedSector || selectedTables.length === 0) {
+      setStatus("error");
+      setStatusMessage(
+        "Vyber prosím sektor a aspoň jeden stôl z mapy."
+      );
+      return;
+    }
+
+    // === FETCH NA /api/reservation ===
     try {
+      setSubmitting(true);
+
       const res = await fetch("/api/reservation", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
           fullName,
           email,
@@ -60,22 +166,28 @@ export default function ReservationPage() {
           partySize,
           selectedSector,
           selectedTables,
-          totalSeatsPicked,
-          note,
+          note: note.trim() || undefined,
         }),
       });
 
-      const json = await res.json();
-      console.log("RESPONSE /api/reservation:", res.status, json);
+      const json = await res.json().catch(() => null);
 
-      if (!res.ok || !json.ok) {
-        alert(json.error ?? "Chyba pri odoslaní rezervácie.");
+      if (!res.ok || !json?.ok) {
+        const msg =
+          (json && json.error) ||
+          "Rezerváciu sa nepodarilo uložiť. Skús to prosím neskôr.";
+        setStatus("error");
+        setStatusMessage(msg);
         return;
       }
 
-      alert("Rezervácia bola odoslaná. Ďakujeme! 😊");
+      // SUCCESS
+      setStatus("success");
+      setStatusMessage(
+        "Rezervácia bola uložená. Čoskoro ti príde potvrdzujúci e-mail."
+      );
 
-      // reset formulára
+      // reset formu
       setFullName("");
       setEmail("");
       setWhen("");
@@ -85,11 +197,15 @@ export default function ReservationPage() {
       setTotalSeatsPicked(0);
       setNote("");
     } catch (err) {
-      console.error("FETCH ERROR /api/reservation:", err);
-      alert("Nepodarilo sa odoslať rezerváciu, skús to prosím neskôr.");
+      console.error("CLIENT ERROR /rezervacia:", err);
+      setStatus("error");
+      setStatusMessage(
+        "Nepodarilo sa spojiť so serverom. Skús to prosím o chvíľu znova."
+      );
+    } finally {
+      setSubmitting(false);
     }
   }
-
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-16 md:py-24">
@@ -105,7 +221,9 @@ export default function ReservationPage() {
         </button>
       </div>
 
-      <h1 className="mb-2 text-3xl font-semibold tracking-tight">Rezervácia</h1>
+      <h1 className="mb-2 text-3xl font-semibold tracking-tight">
+        Rezervácia
+      </h1>
       <p className="mb-8 text-stone-600">
         Vyplň údaje a vyber si sektor a stoly.
       </p>
@@ -114,9 +232,13 @@ export default function ReservationPage() {
         onSubmit={onSubmit}
         className="space-y-6 rounded-2xl border border-stone-200 bg-white p-6 shadow-sm"
       >
+        
+
         {/* Meno */}
         <div>
-          <label className="block text-sm font-medium text-stone-900">Meno a priezvisko</label>
+          <label className="block text-sm font-medium text-stone-900">
+            Meno a priezvisko
+          </label>
           <input
             type="text"
             required
@@ -129,7 +251,9 @@ export default function ReservationPage() {
 
         {/* E-mail */}
         <div>
-          <label className="block text-sm font-medium text-stone-900">E-mail</label>
+          <label className="block text-sm font-medium text-stone-900">
+            E-mail
+          </label>
           <input
             type="email"
             required
@@ -143,7 +267,9 @@ export default function ReservationPage() {
 
         {/* Dátum & čas */}
         <div>
-          <label className="block text-sm font-medium text-stone-900">Dátum a čas</label>
+          <label className="block text-sm font-medium text-stone-900">
+            Dátum a čas
+          </label>
           <div className="mt-2 flex items-center gap-2">
             <Calendar className="h-5 w-5 text-stone-400" />
             <input
@@ -154,20 +280,28 @@ export default function ReservationPage() {
               className="w-full rounded-xl border border-stone-300 bg-white px-3 py-2 outline-none ring-0 focus:border-stone-400"
             />
           </div>
+          <p className="mt-1 text-xs text-stone-500">
+            Na dnešný večer je možné rezervovať najneskôr do 19:30. Najneskorší
+            čas príchodu na stôl je 21:30.
+          </p>
         </div>
 
         {/* Počet ľudí */}
         <div>
-          <label className="block text-sm font-medium text-stone-900">Počet osôb</label>
+          <label className="block text-sm font-medium text-stone-900">
+            Počet osôb (max {MAX_PEOPLE})
+          </label>
           <div className="mt-2 flex items-center gap-2">
             <Users className="h-5 w-5 text-stone-400" />
             <input
               type="number"
               min={1}
-              max={40}
+              max={MAX_PEOPLE}
               required
               value={partySize}
-              onChange={(e) => setPartySize(parseInt(e.target.value || "1", 10))}
+              onChange={(e) =>
+                setPartySize(parseInt(e.target.value || "1", 10))
+              }
               className="w-40 rounded-xl border border-stone-300 bg-white px-3 py-2 outline-none ring-0 focus:border-stone-400"
             />
           </div>
@@ -177,7 +311,10 @@ export default function ReservationPage() {
         <div className="space-y-3 rounded-xl border border-stone-200 p-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="text-sm text-stone-700">
-              Sektor: <span className="font-medium">{selectedSector ?? "—"}</span>
+              Sektor:{" "}
+              <span className="font-medium">
+                {selectedSector ?? "—"}
+              </span>
             </div>
             <div className="flex items-center gap-2">
               <button
@@ -195,18 +332,23 @@ export default function ReservationPage() {
             <div>
               Vybrané stoly:{" "}
               <span className="font-medium">
-                {selectedTables.length ? selectedTables.join(", ") : "—"}
+                {selectedTables.length
+                  ? selectedTables.join(", ")
+                  : "—"}
               </span>
             </div>
             <div className="text-stone-600">
-              Spolu sedačiek: {totalSeatsPicked} / potrebných {partySize}
+              Spolu sedačiek: {totalSeatsPicked} / potrebných{" "}
+              {partySize}
             </div>
           </div>
         </div>
 
-        {/* Poznámka (nepovinné) */}
+              {/* Poznámka (nepovinné) */}
         <div>
-          <label className="block text-sm font-medium text-stone-900">Poznámka (nepovinné)</label>
+          <label className="block text-sm font-medium text-stone-900">
+            Poznámka (nepovinné)
+          </label>
           <textarea
             rows={3}
             value={note}
@@ -214,6 +356,21 @@ export default function ReservationPage() {
             className="mt-2 w-full rounded-xl border border-stone-300 bg-white px-3 py-2 outline-none ring-0 focus:border-stone-400"
           />
         </div>
+
+        {/* FANCY ALERT – presunutý sem nad tlačidlá */}
+        {status !== "idle" && statusMessage && (
+          <div
+            className={[
+              "flex items-start gap-3 rounded-xl border px-3 py-2 text-sm",
+              status === "success"
+                ? "border-emerald-200 bg-emerald-50 text-emerald-900"
+                : "border-red-200 bg-red-50 text-red-900",
+            ].join(" ")}
+          >
+            <div className="mt-0.5 h-2 w-2 flex-none rounded-full bg-current opacity-70" />
+            <p>{statusMessage}</p>
+          </div>
+        )}
 
         <div className="flex items-center justify-end gap-3">
           <button
@@ -227,16 +384,26 @@ export default function ReservationPage() {
               setSelectedTables([]);
               setTotalSeatsPicked(0);
               setNote("");
+              setStatus("idle");
+              setStatusMessage(null);
             }}
             className="inline-flex items-center justify-center rounded-xl border border-stone-300 bg-white px-4 py-2 text-sm font-medium hover:bg-stone-50"
           >
             Resetovať
           </button>
-          <button type="submit" className="btn-accent">
-            Odoslať rezerváciu
+          <button
+            type="submit"
+            disabled={submitting}
+            className="btn-accent inline-flex items-center gap-2 disabled:opacity-70"
+          >
+            {submitting && (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            )}
+            {submitting ? "Odosielam…" : "Odoslať rezerváciu"}
           </button>
         </div>
       </form>
+
 
       {/* MODAL – výber sektora z hlavnej mapy */}
       <SectorModal
@@ -245,7 +412,7 @@ export default function ReservationPage() {
         onSelect={(sector) => {
           setSelectedSector(sector);
           setSectorOpen(false);
-          setSectorDetailOpen(true); // hneď otvoríme detail
+          setSectorDetailOpen(true);
         }}
         onClose={() => setSectorOpen(false)}
       />

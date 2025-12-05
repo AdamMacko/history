@@ -6,12 +6,26 @@ import { X, Check, Trash2 } from "lucide-react";
 type Props = {
   open: boolean;
   sector: string | null; // napr. "A1", "B1", "C", ...
-  value: string[];       // aktuálne vybraté stoly (T21, T20, ...)
-  onChange: (tables: string[], meta: { totalSeats: number; perTable: Record<string, number> }) => void;
+  value: string[]; // aktuálne vybraté stoly (T21, T20, ...)
+  onChange: (
+    tables: string[],
+    meta: { totalSeats: number; perTable: Record<string, number> }
+  ) => void;
   onClose: () => void;
+  unavailableTables?: string[]; // napr. ["T21","T5","T27"]
+  loadingUnavailable?: boolean;
 };
 
-export default function SectorDetailModal({ open, sector, value, onChange, onClose }: Props) {
+const MAX_TABLES = 2;
+
+export default function SectorDetailModal({
+  open,
+  sector,
+  value,
+  onChange,
+  onClose,
+  unavailableTables,
+}: Props) {
   const hostRef = useRef<HTMLDivElement>(null);
   const [raw, setRaw] = useState<string>("");
 
@@ -21,86 +35,123 @@ export default function SectorDetailModal({ open, sector, value, onChange, onClo
 
   const isOpen = open && !!sector;
 
+  // pri otvorení modalu prebrať aktuálny výber z rodiča
   useEffect(() => {
     if (!isOpen) return;
     setPicked(new Set(value));
   }, [isOpen, value, sector]);
 
-  // načítaj SVG daného sektora
+  // načítanie SVG pre daný sektor
   useEffect(() => {
     if (!isOpen || !sector) return;
+
     const url = `/maps/sector${sector.toUpperCase()}.svg`;
+
     fetch(url)
       .then((r) => r.text())
       .then((txt) => setRaw(txt))
       .catch((e) => {
         console.error("Nepodarilo sa načítať sektorové SVG:", e);
-        setRaw(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"><text x="0" y="5">Chyba SVG</text></svg>`);
+        setRaw(
+          `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"><text x="0" y="5">Chyba SVG</text></svg>`
+        );
       });
   }, [isOpen, sector]);
 
-  // vlož SVG inline, naviaž kliky na stoly a zarovnaj/fitni SVG do plochy
+  // set na rýchle zistenie, či je stôl obsadený
+  const unavailableSet = useMemo(
+    () => new Set((unavailableTables ?? []).map((t) => t.toUpperCase())),
+    [unavailableTables]
+  );
+
+  // vloženie SVG, naviazanie klikov a nastavenie obsadených stolov
   useEffect(() => {
     const host = hostRef.current;
-    if (!host || !raw) return;
+    if (!host || !raw || !isOpen) return;
 
     host.innerHTML = raw;
     const svg = host.querySelector("svg") as SVGSVGElement | null;
     if (!svg) return;
 
-    // Statický „fit“: nech sa SVG pekne zmestí do kontajnera
+    // fit SVG do kontajnera
     svg.removeAttribute("width");
     svg.removeAttribute("height");
     svg.style.width = "100%";
     svg.style.height = "100%";
     svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
 
-    // pozbieraj stoly a kapacity
     const localSeats: Record<string, number> = {};
     const tables = svg.querySelectorAll("g[id^='T']");
+
     tables.forEach((g) => {
-      const id = (g as SVGGElement).id; // napr. "T21"
-      (g as SVGGElement).style.cursor = "pointer";
+      const group = g as SVGGElement;
+      const id = group.id; // napr. "T21"
+      const upperId = id.toUpperCase();
 
-   
-const mainShape =
-  g.querySelector<SVGElement>(`#rectangle${id}`) ??
-  g.querySelector<SVGElement>(`#ellipse${id}`) ??
-  g.querySelector<SVGElement>(`#circle${id}`) ??
-  g.querySelector<SVGElement>("rect,ellipse,circle") ??
-  g.querySelector<SVGElement>("path");
+      const mainShape =
+        group.querySelector<SVGElement>(`#rectangle${id}`) ??
+        group.querySelector<SVGElement>(`#ellipse${id}`) ??
+        group.querySelector<SVGElement>(`#circle${id}`) ??
+        group.querySelector<SVGElement>("rect,ellipse,circle") ??
+        group.querySelector<SVGElement>("path");
 
-
-      // kapacita – prvý <text> s číslom (nie "č.xx")
+      // kapacita – prvý <text> s čistým číslom
       let seats = 0;
-      const texts = g.querySelectorAll("text");
+      const texts = group.querySelectorAll("text");
       for (const t of Array.from(texts)) {
         const s = (t.textContent || "").trim();
-        if (/^\d{1,2}$/.test(s)) { seats = parseInt(s, 10); break; }
+        if (/^\d{1,2}$/.test(s)) {
+          seats = parseInt(s, 10);
+          break;
+        }
       }
       localSeats[id] = seats;
 
-      // init highlight podľa picked
-      setHighlight(g as SVGGElement, !!picked.has(id), mainShape);
+      const isUnavailable = unavailableSet.has(upperId);
 
-      // toggle klik
-      g.addEventListener("click", () => {
+      if (isUnavailable) {
+        //  obsadený stôl – sivý a neklikateľný
+        group.style.cursor = "not-allowed";
+        const target = mainShape ?? group;
+        (target as any).style.opacity = "0.35";
+        (target as any).style.filter = "";
+        (target as any).style.stroke = "#6b7280";
+        (target as any).style.strokeWidth = "1.5px";
+        return;
+      }
+
+      
+      group.style.cursor = "pointer";
+
+      // init highlight podľa picked
+      setHighlight(group, picked.has(id), mainShape);
+
+      // toggle klik s limitom MAX_TABLES
+      group.addEventListener("click", () => {
         setPicked((prev) => {
+          const already = prev.has(id);
+
+          if (!already && prev.size >= MAX_TABLES) {
+            return prev;
+          }
+
           const next = new Set(prev);
-          if (next.has(id)) {
+
+          if (already) {
             next.delete(id);
-            setHighlight(g as SVGGElement, false, mainShape);
+            setHighlight(group, false, mainShape);
           } else {
             next.add(id);
-            setHighlight(g as SVGGElement, true, mainShape);
+            setHighlight(group, true, mainShape);
           }
+
           return next;
         });
       });
     });
 
     setSeatsMap(localSeats);
-  }, [raw]);
+  }, [raw, unavailableSet, isOpen, picked]);
 
   const totalSeats = useMemo(() => {
     let sum = 0;
@@ -108,10 +159,15 @@ const mainShape =
     return sum;
   }, [picked, seatsMap]);
 
-  function setHighlight(group: SVGGElement, on: boolean, mainShape?: SVGElement | null) {
+  function setHighlight(
+    group: SVGGElement,
+    on: boolean,
+    mainShape?: SVGElement | null
+  ) {
     const target = mainShape ?? group;
     if (on) {
-      (target as any).style.filter = "drop-shadow(0 0 0.8rem rgba(59,130,246,0.6))";
+      (target as any).style.filter =
+        "drop-shadow(0 0 0.8rem rgba(59,130,246,0.6))";
       (target as any).style.stroke = "#2563eb";
       (target as any).style.strokeWidth = "2.5px";
     } else {
@@ -126,53 +182,77 @@ const mainShape =
   return (
     <div className="fixed inset-0 z-[80] bg-black/60">
       <div className="absolute inset-0 flex flex-col">
-        {/* Toolbar (bez zoom/drag prvkov) */}
-        <div className="flex items-center justify-between gap-2 bg-white/90 px-4 py-2 shadow">
-          <div className="flex flex-wrap items-center gap-2 text-sm">
-            <span className="font-medium">Sektor {sector}</span>
-            <span className="text-stone-500">•</span>
-            <span>Vybrané stoly: {Array.from(picked).join(", ") || "—"}</span>
-            <span className="text-stone-500">•</span>
-            <span>Spolu miest: {totalSeats}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setPicked(new Set())}
-              className="inline-flex items-center gap-1 rounded-xl border border-stone-300 bg-white px-2 py-1 text-sm hover:bg-stone-50"
-              title="Vymazať výber"
-            >
-              <Trash2 className="h-4 w-4" /> Vymazať
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                onChange(Array.from(picked), { totalSeats, perTable: seatsMap });
-                onClose();
-              }}
-              className="btn-accent inline-flex items-center gap-2"
-            >
-              <Check className="h-4 w-4" />
-              Potvrdiť výber
-            </button>
-            <button
-              type="button"
-              onClick={onClose}
-              className="inline-flex items-center gap-2 rounded-xl border border-stone-300 bg-white px-2 py-1 text-sm hover:bg-stone-50"
-            >
-              <X className="h-4 w-4" />
-              Zavrieť
-            </button>
+        {/* Toolbar –  */}
+        <div className="bg-white/90 px-3 py-2 shadow sm:px-4">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            {/* Info časť */}
+            <div className="space-y-1 text-xs text-stone-700 sm:text-sm">
+              <div className="font-medium">
+                Sektor {sector}
+              </div>
+
+              <div className="flex flex-wrap gap-x-2 gap-y-1">
+                <span>
+                  Vybrané stoly:{" "}
+                  <span className="font-semibold">
+                    {Array.from(picked).join(", ") || "—"}
+                  </span>
+                </span>
+                <span className="text-stone-400">•</span>
+                <span>
+                  Spolu miest:{" "}
+                  <span className="font-semibold">{totalSeats}</span>
+                </span>
+              </div>
+
+              <div className="text-[11px] text-stone-500">
+                Sivé stoly sú už obsadené. Max 2 stoly na rezerváciu.
+              </div>
+            </div>
+
+            {/* Tlačidlá */}
+            <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+              <button
+                type="button"
+                onClick={() => setPicked(new Set())}
+                className="inline-flex items-center gap-1 rounded-xl border border-stone-300 bg-white px-3 py-1.5 text-xs font-medium hover:bg-stone-50 sm:text-sm"
+                title="Vymazať výber"
+              >
+                <Trash2 className="h-4 w-4" />
+                Vymazať
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  onChange(Array.from(picked), {
+                    totalSeats,
+                    perTable: seatsMap,
+                  });
+                  onClose();
+                }}
+                className="btn-accent inline-flex items-center gap-2 px-4 py-1.5 text-xs sm:text-sm"
+              >
+                <Check className="h-4 w-4" />
+                Potvrdiť výber
+              </button>
+
+              <button
+                type="button"
+                onClick={onClose}
+                className="inline-flex items-center gap-2 rounded-xl border border-stone-300 bg-white px-3 py-1.5 text-xs font-medium hover:bg-stone-50 sm:text-sm"
+              >
+                <X className="h-4 w-4" />
+                Zavrieť
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Plátno – statické, len prípadne scroll ak je SVG vyššie/širšie */}
+
+        {/* Plátno */}
         <div className="relative isolate flex-1 overflow-auto bg-white">
-          <div
-            ref={hostRef}
-            className="h-full w-full p-4"
-            // SVG je inline, fitnuté na 100% plochy kontajnera (bez zoom/drag)
-          />
+          <div ref={hostRef} className="h-full w-full p-4" />
         </div>
       </div>
     </div>

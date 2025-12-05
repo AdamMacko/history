@@ -12,22 +12,22 @@ type Partner = {
 const PARTNERS: Partner[] = [
   {
     name: "Partner 1",
-    logo: "https://www.historyclub.sk/wp-content/uploads/brizy/imgs/FPU_logo1_modre-scaled-966x724x0x177x966x369x1580910669.jpg",
+    logo: "https://www.historyclub.sk/slideShow/club/fond_na_podporu_umenia.jpg",
     href: "https://www.fpu.sk/sk/",
   },
   {
     name: "Partner 2",
-    logo: "https://www.historyclub.sk/wp-content/uploads/brizy/imgs/Asset-1@2x-185x185x0x0x185x185x1580913101.png",
-    href: "https://www.partner2.sk/",
+    logo: "https://www.historyclub.sk/slideShow/club/pubquiz.png",
+    href: "https://www.facebook.com/share/1EsqoQoHdA/?mibextid=wwXIfr",
   },
   {
     name: "Partner 3",
-    logo: "https://www.historyclub.sk/wp-content/uploads/brizy/imgs/greco-logo-dark-281x105x0x0x281x105x1580911067.png",
+    logo: "https://www.historyclub.sk/slideShow/club/greco.png",
     href: "https://www.grecoreklama.sk/",
   },
   {
     name: "Partner 4",
-    logo: "https://www.historyclub.sk/wp-content/uploads/brizy/imgs/KOFOLA_LOGO-248x188x0x1x248x186x1676923457.jpg",
+    logo: "https://www.historyclub.sk/slideShow/club/kofola.jpg",
     href: "https://www.kofola.sk/",
   },
 ];

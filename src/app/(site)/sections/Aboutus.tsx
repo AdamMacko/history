@@ -7,11 +7,10 @@ export default function Aboutus() {
 
   const amenities = [
     { icon: Music,     label: "Multifunkčný priestor so špičkovým ozvučením a svetlami" },
-    { icon: Film,      label: "Veľkoplošná projekcia — jukebox, hudobné a športové prenosy" },
+    { icon: Film,      label: "Veľkoplošná projekcia — hudobné a športové prenosy" },
     { icon: Target,    label: "Biliard, šípky a stolný futbal" },
     { icon: Users,     label: "Kapacita pre rôzne typy podujatí v širšom regióne" },
     { icon: Mic2,      label: "Pódium pripravené na hudbu, divadlo, film, tanec či prednášky" },
-    { icon: Briefcase, label: "Firemné večierky a uzavreté eventy" },
   ];
 
   return (
@@ -24,7 +23,7 @@ export default function Aboutus() {
               HISTORY ART &amp; MUSIC CLUB
             </p>
             <h1 className="mt-2 text-3xl font-semibold leading-tight tracking-tight md:text-4xl">
-              Priestor pre umenie v&nbsp;komplexnej podobe
+              Všetci tvoríme jeden príbeh
             </h1>
 
             <p className="mt-5 max-w-3xl leading-relaxed text-stone-700">

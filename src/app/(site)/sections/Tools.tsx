@@ -15,9 +15,9 @@ import { useState } from "react";
 
 type GearItem = {
   name: string;
-  img: string;    
-  specs?: string[]; 
-  href?: string;    
+  img: string;
+  specs?: string[];
+  href?: string;
 };
 
 type Category = {
@@ -36,65 +36,49 @@ const CATEGORIES: Category[] = [
       {
         name: "Martin Audio",
         img: "https://www.historyclub.sk/slideShow/sound_stage/sound02.webp",
-        
+
       },
       {
         name: "Martin Audio",
         img: "https://www.historyclub.sk/slideShow/sound_stage/sound03.webp",
-        
+
       },
-       {
+      {
         name: "Soundcraft GB2",
         img: "https://www.historyclub.sk/slideShow/sound_stage/sound04.webp",
       },
-       {
+      {
         name: "Soundcraft GB2",
         img: "https://www.historyclub.sk/slideShow/sound_stage/sound05.webp",
       },
-       {
+      {
         name: "Soundcraft GB2",
         img: "https://www.historyclub.sk/slideShow/sound_stage/sound06.webp",
       },
-       {
+      {
         name: "Lexicon MX400",
         img: "https://www.historyclub.sk/slideShow/sound_stage/sound07.webp",
       },
-       {
+      {
         name: "Lexicon MX400",
         img: "https://www.historyclub.sk/slideShow/sound_stage/sound08.webp",
       },
-       {
+      {
         name: "ECLER",
         img: "https://www.historyclub.sk/slideShow/sound_stage/sound09.webp",
       },
-       {
+      {
         name: "ECLER",
         img: "https://www.historyclub.sk/slideShow/sound_stage/sound10.webp",
       },
-       {
+      {
         name: "Martin Audio",
         img: "https://www.historyclub.sk/slideShow/sound_stage/sound11.webp",
       },
-      
+
     ],
   },
- /* {
-    key: "lights",
-    label: "Svetlá",
-    icon: Lightbulb,
-    items: [
-      {
-        name: "LED & Wash",
-        img: "https://www.historyclub.sk/wp-content/uploads/brizy/imgs/IMG_3560-310x207x18x0x274x207x1625815576.jpg",
-        specs: ["Farebné scény", "Statické aj dynamické sety"],
-      },
-      {
-        name: "FX & Beam",
-        img: "https://www.historyclub.sk/wp-content/uploads/brizy/imgs/01-310x207x18x0x274x207x1578580883.jpg",
-        specs: ["Strobo, beam, haze", "Programovanie podľa eventu"],
-      },
-    ],
-  },*/
+ 
   {
     key: "stage",
     label: "Pódium / backline",
@@ -107,18 +91,7 @@ const CATEGORIES: Category[] = [
       },
     ],
   },
-/*   {
-   key: "video",
-    label: "Projekcia",
-    icon: Tv,
-    items: [
-      {
-        name: "Veľkoplošná projekcia",
-        img: "https://www.historyclub.sk/wp-content/uploads/2020/01/01.jpg",
-        specs: ["Jukebox", "Hudobné & športové prenosy"],
-      },
-    ],
-  },*/
+ 
   {
     key: "games",
     label: "Zábava",
@@ -126,8 +99,18 @@ const CATEGORIES: Category[] = [
     items: [
       {
         name: "Biliard",
-        img: "https://www.historyclub.sk/slideShow/club/04.webp",
+        img: "https://www.historyclub.sk/slideShow/sound_stage/biliard.webp",
         specs: ["Udržiavaný stôl", "K dispozícii tága & gule"],
+      },
+       {
+        name: "Šípky",
+        img: "https://www.historyclub.sk/slideShow/sound_stage/sipky.webp",
+        specs: [],
+      },
+      {
+        name: "Stolný futbal",
+        img: "https://www.historyclub.sk/slideShow/sound_stage/stolny_futbal.webp",
+        specs: [],
       },
     ],
   },
@@ -195,9 +178,10 @@ export default function Tools() {
             href={item.href ?? item.img}
             target="_blank"
             rel="noopener noreferrer"
-            className="group overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm transition hover:shadow-md"
+            className="group flex flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm transition hover:shadow-md"
           >
-            <div className="relative aspect-[16/10]">
+            {/* OBRÁZOK – pevná výška nech to funguje aj na mobile */}
+            <div className="relative h-52 w-full md:h-56 lg:h-64">
               <Image
                 src={item.img}
                 alt={item.name}
@@ -209,18 +193,21 @@ export default function Tools() {
               <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
             </div>
 
-            <div className="p-4">
+            {/* TEXT */}
+            <div className="flex flex-1 flex-col p-4">
               <h3 className="text-base font-semibold text-stone-900">{item.name}</h3>
+
               {!!item.specs?.length && (
                 <ul className="mt-2 space-y-1 text-sm text-stone-700">
                   {item.specs.map((s) => (
                     <li key={s} className="flex items-start gap-2">
-                      <span className="mt-1 inline-block h-1.5 w-1.5 rounded-full bg-[var(--accent-700)]"></span>
+                      <span className="mt-1 inline-block h-1.5 w-1.5 rounded-full bg-[var(--accent-700)]" />
                       {s}
                     </li>
                   ))}
                 </ul>
               )}
+
               <span className="mt-3 inline-block text-xs font-medium text-stone-500">
                 Otvoriť fotografiu v novom okne
               </span>
@@ -228,6 +215,7 @@ export default function Tools() {
           </a>
         ))}
       </Stagger>
+
     </Section>
   );
 }
