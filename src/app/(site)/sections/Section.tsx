@@ -48,7 +48,7 @@ export default function Section({
     },
   };
 
-  return (
+    return (
     <section id={id} className="scroll-mt-28">
       <div className="mx-auto max-w-6xl px-4 py-16 md:py-24">
         {title && (
@@ -69,7 +69,6 @@ export default function Section({
             )}
 
             <div className="group relative inline-block pb-2">
-              {/* anchor ikona */}
               <a
                 href={`#${id}`}
                 aria-label={`Odkaz na sekciu ${title}`}
@@ -85,7 +84,6 @@ export default function Section({
                 {title}
               </motion.h2>
 
-              {/* accent podčiarka – používa utilitu .accent-underline z globals.css */}
               <span
                 className={[
                   "pointer-events-none absolute bottom-0 h-[3px] w-24 rounded-full",
@@ -98,7 +96,7 @@ export default function Section({
             {description && (
               <motion.p
                 variants={item}
-                className={[ 
+                className={[
                   "mt-3 text-stone-600",
                   center ? "mx-auto max-w-2xl" : "max-w-3xl",
                 ].join(" ")}
@@ -109,16 +107,10 @@ export default function Section({
           </motion.header>
         )}
 
-        {/* obsah sekcie */}
-        <motion.div
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, amount: 0.2 }}
-          variants={container}
-          className="mt-2 md:mt-4"
-        >
-          <motion.div variants={item}>{children}</motion.div>
-        </motion.div>
+        {/* obsah sekcie – BEZ animácie, vždy viditeľný */}
+        <div className="mt-2 md:mt-4">
+          {children}
+        </div>
       </div>
     </section>
   );

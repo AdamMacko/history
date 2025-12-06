@@ -1,10 +1,7 @@
 import Section from "./Section";
 import Image from "next/image";
 import { ExternalLink } from "lucide-react";
-import { Stagger } from "../../components/motion";
 import { fetchUpcomingEvents, Event } from "@/lib/sanity.client";
-
-export const dynamic = "force-dynamic";
 
 function formatDateLabel(iso: string) {
   const d = new Date(iso);
@@ -41,7 +38,8 @@ export default async function Program() {
           Momentálne nemáme žiadne naplánované podujatia. Sleduj nás na sociálnych sieťach pre najnovšie info.
         </p>
       ) : (
-        <Stagger className="space-y-8">
+     
+        <div className="space-y-8">
           {events.map((ev, i) => {
             const reverse = i % 2 === 1;
             const dateLabel = formatDateLabel(ev.start);
@@ -136,7 +134,7 @@ export default async function Program() {
               </article>
             );
           })}
-        </Stagger>
+        </div>
       )}
 
       <p className="mt-6 text-sm text-stone-600">
