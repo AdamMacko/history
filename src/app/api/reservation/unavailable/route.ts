@@ -21,7 +21,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // rovnaký formát ako v hlavnom route: DD.MM.RRRR
+    // DD.MM.RRRR – musí sedieť s tým, čo zapisuješ do Sheets
     const yyyy = dt.getFullYear();
     const mm = String(dt.getMonth() + 1).padStart(2, "0");
     const dd = String(dt.getDate()).padStart(2, "0");

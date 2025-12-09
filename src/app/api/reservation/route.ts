@@ -1,3 +1,4 @@
+// app/api/reservation/route.ts
 import { NextResponse } from "next/server";
 import {
   appendReservationRow,
@@ -5,8 +6,9 @@ import {
 } from "../../../lib/sheets";
 import { sendReservationEmails } from "../../../lib/mail";
 
-export const runtime = "nodejs"; // dôležité pre nodemailer
+export const runtime = "nodejs";
 
+// Konštanty pre validáciu
 const CUTOFF_BOOKING_HOUR = 19;
 const CUTOFF_BOOKING_MINUTE = 30;
 
@@ -22,6 +24,30 @@ function isSameCalendarDay(a: Date, b: Date): boolean {
     a.getMonth() === b.getMonth() &&
     a.getDate() === b.getDate()
   );
+}
+
+// parsovanie `when` a formátovanie na DD.MM.RRRR + HH:MM
+function parseWhenAndGetDateStr(when: string): {
+  dt?: Date;
+  dateStr?: string;
+  timeStr?: string;
+  error?: string;
+} {
+  const dt = new Date(when);
+  if (Number.isNaN(dt.getTime())) {
+    return { error: "Neplatný dátum/čas." };
+  }
+
+  const yyyy = dt.getFullYear();
+  const mm = String(dt.getMonth() + 1).padStart(2, "0");
+  const dd = String(dt.getDate()).padStart(2, "0");
+  const hh = String(dt.getHours()).padStart(2, "0");
+  const mi = String(dt.getMinutes()).padStart(2, "0");
+
+  const dateStr = `${dd}.${mm}.${yyyy}`;
+  const timeStr = `${hh}:${mi}`;
+
+  return { dt, dateStr, timeStr };
 }
 
 export async function POST(req: Request) {
@@ -75,10 +101,10 @@ export async function POST(req: Request) {
       );
     }
 
-    const dt = new Date(when);
-    if (Number.isNaN(dt.getTime())) {
+    const { dt, dateStr, timeStr, error } = parseWhenAndGetDateStr(when);
+    if (error || !dt || !dateStr || !timeStr) {
       return NextResponse.json(
-        { ok: false, error: "Neplatný dátum/čas." },
+        { ok: false, error: error ?? "Neplatný dátum/čas." },
         { status: 400 }
       );
     }
@@ -93,7 +119,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // 1) globálny limit príchodu – najneskôr 21:30 (pre akýkoľvek deň)
+    // 1) globálny limit príchodu – najneskôr 21:30
     {
       const selectedMinutes = dt.getHours() * 60 + dt.getMinutes();
       const maxArrivalMinutes =
@@ -138,20 +164,13 @@ export async function POST(req: Request) {
     const [firstName, ...rest] = fullName.trim().split(/\s+/);
     const lastName = rest.join(" ");
 
-    // formát DD.MM.RRRR a HH:MM
-    const yyyy = dt.getFullYear();
-    const mm = String(dt.getMonth() + 1).padStart(2, "0");
-    const dd = String(dt.getDate()).padStart(2, "0");
-    const hh = String(dt.getHours()).padStart(2, "0");
-    const mi = String(dt.getMinutes()).padStart(2, "0");
-
-    const dateStr = `${dd}.${mm}.${yyyy}`;
-    const timeStr = `${hh}:${mi}`;
-
-    // 3) KONTROLA OBSADENÝCH STOLOV NA DANÝ DEŇ (Google Sheets)
+    // 3) KONTROLA OBSADENÝCH STOLOV NA DANÝ DEŇ
     if (selectedTables && selectedTables.length > 0) {
       const reserved = await getReservedTablesForDate(dateStr);
-      const conflict = selectedTables.filter((t) => reserved.has(t));
+
+      const conflict = selectedTables.filter((t) =>
+        reserved.has(t.toUpperCase())
+      );
 
       if (conflict.length > 0) {
         return NextResponse.json(
@@ -167,7 +186,6 @@ export async function POST(req: Request) {
       }
     }
 
-    // Sektor + stoly do jedného textu (stĺpec "Stôl" v Sheets)
     const tablesText =
       (selectedSector ? `${selectedSector}: ` : "") +
       (selectedTables?.length ? selectedTables.join(", ") : "");
@@ -186,7 +204,6 @@ export async function POST(req: Request) {
 
     await appendReservationRow(row);
 
-    // 4) POSLAŤ POTVRDZUJÚCI MAIL (user + kópia pre klub)
     try {
       await sendReservationEmails({
         email,
@@ -199,7 +216,6 @@ export async function POST(req: Request) {
       });
     } catch (mailErr) {
       console.error("ERROR pri posielaní potvrdzujúceho emailu:", mailErr);
-      // rezervácia je zapísaná, mail môže zlyhať bez 500-ky
     }
 
     return NextResponse.json({ ok: true });

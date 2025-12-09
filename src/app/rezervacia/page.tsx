@@ -40,7 +40,11 @@ export default function ReservationPage() {
   const [selectedTables, setSelectedTables] = useState<string[]>([]);
   const [totalSeatsPicked, setTotalSeatsPicked] = useState<number>(0);
 
-  // Fancy alert stavy
+  // Obsadené stoly pre daný dátum
+  const [unavailableTables, setUnavailableTables] = useState<string[]>([]);
+  const [loadingUnavailable, setLoadingUnavailable] = useState(false);
+
+  //alert stavy
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -50,6 +54,50 @@ export default function ReservationPage() {
       router.back();
     } else {
       router.push("/");
+    }
+  }
+
+  // Po kliknutí na "Vybrať sektor (mapa)" – najprv načítame obsadené stoly, potom otvoríme mapu
+  async function handleOpenSectorPicker() {
+    setStatus("idle");
+    setStatusMessage(null);
+
+    if (!when) {
+      setStatus("error");
+      setStatusMessage("Najprv vyber dátum a čas rezervácie.");
+      return;
+    }
+
+    try {
+      setLoadingUnavailable(true);
+
+      const res = await fetch("/api/reservation/unavailable", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ when }),
+      });
+
+      const json = await res.json().catch(() => null);
+      if (!res.ok || !json?.ok) {
+        console.error("Chyba /api/reservation/unavailable:", json);
+        setUnavailableTables([]);
+      } else if (Array.isArray(json.tables)) {
+        setUnavailableTables(json.tables); // napr. ["T4","T5"]
+      } else {
+        setUnavailableTables([]);
+      }
+
+      // až keď máme odpoveď, otvoríme mapu so sektormi
+      setSectorOpen(true);
+    } catch (err) {
+      console.error("CLIENT ERROR pri načítaní obsadených stolov:", err);
+      setUnavailableTables([]);
+      setStatus("error");
+      setStatusMessage(
+        "Nepodarilo sa načítať obsadené stoly. Skús to prosím o chvíľu znova."
+      );
+    } finally {
+      setLoadingUnavailable(false);
     }
   }
 
@@ -196,6 +244,7 @@ export default function ReservationPage() {
       setSelectedTables([]);
       setTotalSeatsPicked(0);
       setNote("");
+      setUnavailableTables([]);
     } catch (err) {
       console.error("CLIENT ERROR /rezervacia:", err);
       setStatus("error");
@@ -225,15 +274,15 @@ export default function ReservationPage() {
         Rezervácia
       </h1>
       <p className="mb-8 text-stone-600">
-        Vyplň údaje a vyber si sektor a stoly.
+        Rezervácia je možná v bežných dňoch a na podujatia, na ktoré nie je možné
+        kupovať vstupenky v predpredaji (podujatia bez vstupného alebo podujatia
+        s dobrovoľným vstupným).
       </p>
 
       <form
         onSubmit={onSubmit}
         className="space-y-6 rounded-2xl border border-stone-200 bg-white p-6 shadow-sm"
       >
-        
-
         {/* Meno */}
         <div>
           <label className="block text-sm font-medium text-stone-900">
@@ -319,9 +368,13 @@ export default function ReservationPage() {
             <div className="flex items-center gap-2">
               <button
                 type="button"
-                onClick={() => setSectorOpen(true)}
-                className="btn-accent inline-flex items-center gap-2"
+                onClick={handleOpenSectorPicker}
+                disabled={loadingUnavailable || !when}
+                className="btn-accent inline-flex items-center gap-2 disabled:opacity-60"
               >
+                {loadingUnavailable && (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                )}
                 <MapPin className="h-4 w-4" />
                 Vybrať sektor (mapa)
               </button>
@@ -344,7 +397,7 @@ export default function ReservationPage() {
           </div>
         </div>
 
-              {/* Poznámka (nepovinné) */}
+        {/* Poznámka (nepovinné) */}
         <div>
           <label className="block text-sm font-medium text-stone-900">
             Poznámka (nepovinné)
@@ -357,7 +410,6 @@ export default function ReservationPage() {
           />
         </div>
 
-       
         {status !== "idle" && statusMessage && (
           <div
             className={[
@@ -386,6 +438,7 @@ export default function ReservationPage() {
               setNote("");
               setStatus("idle");
               setStatusMessage(null);
+              setUnavailableTables([]);
             }}
             className="inline-flex items-center justify-center rounded-xl border border-stone-300 bg-white px-4 py-2 text-sm font-medium hover:bg-stone-50"
           >
@@ -403,7 +456,6 @@ export default function ReservationPage() {
           </button>
         </div>
       </form>
-
 
       {/* MODAL – výber sektora z hlavnej mapy */}
       <SectorModal
@@ -427,6 +479,8 @@ export default function ReservationPage() {
           setTotalSeatsPicked(meta.totalSeats);
         }}
         onClose={() => setSectorDetailOpen(false)}
+        unavailableTables={unavailableTables}
+        loadingUnavailable={loadingUnavailable}
       />
     </main>
   );

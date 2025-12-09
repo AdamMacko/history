@@ -25,6 +25,7 @@ export default function SectorDetailModal({
   onChange,
   onClose,
   unavailableTables,
+  loadingUnavailable,
 }: Props) {
   const hostRef = useRef<HTMLDivElement>(null);
   const [raw, setRaw] = useState<string>("");
@@ -80,6 +81,9 @@ export default function SectorDetailModal({
     svg.style.height = "100%";
     svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
 
+    console.log("UNAVAILABLE TABLES PROP:", unavailableTables);
+    console.log("UNAVAILABLE SET:", Array.from(unavailableSet));
+
     const localSeats: Record<string, number> = {};
     const tables = svg.querySelectorAll("g[id^='T']");
 
@@ -106,27 +110,85 @@ export default function SectorDetailModal({
         }
       }
       localSeats[id] = seats;
-
       const isUnavailable = unavailableSet.has(upperId);
+      console.log("TABLE", id, "isUnavailable =", isUnavailable);
 
       if (isUnavailable) {
-        //  obsadený stôl – sivý a neklikateľný
+      
         group.style.cursor = "not-allowed";
-        const target = mainShape ?? group;
-        (target as any).style.opacity = "0.35";
-        (target as any).style.filter = "";
-        (target as any).style.stroke = "#6b7280";
-        (target as any).style.strokeWidth = "1.5px";
-        return;
+        group.style.pointerEvents = "none";
+
+     
+        const children = group.querySelectorAll<SVGElement>("*");
+
+        if (mainShape) {
+          (mainShape.style as any).fill = "#e5e7eb"; 
+          (mainShape.style as any).stroke = "#9ca3af"; 
+          (mainShape.style as any).strokeWidth = "2.5px";
+        }
+
+        children.forEach((child) => {
+          (child.style as any).opacity = "0.75";
+          (child.style as any).filter = "grayscale(1)";
+
+        
+          if (child.tagName.toLowerCase() === "text") {
+            (child.style as any).fill = "#4b5563"; 
+          }
+        });
+
+     
+        try {
+          const targetForX = mainShape ?? group;
+          // @ts-ignore
+          const bbox = targetForX.getBBox?.();
+          if (bbox) {
+            const line1 = document.createElementNS(
+              "http://www.w3.org/2000/svg",
+              "line"
+            );
+            line1.setAttribute("x1", String(bbox.x));
+            line1.setAttribute("y1", String(bbox.y));
+            line1.setAttribute("x2", String(bbox.x + bbox.width));
+            line1.setAttribute("y2", String(bbox.y + bbox.height));
+
+            const line2 = document.createElementNS(
+              "http://www.w3.org/2000/svg",
+              "line"
+            );
+            line2.setAttribute("x1", String(bbox.x + bbox.width));
+            line2.setAttribute("y1", String(bbox.y));
+            line2.setAttribute("x2", String(bbox.x));
+            line2.setAttribute("y2", String(bbox.y + bbox.height));
+
+            [line1, line2].forEach((ln) => {
+              ln.setAttribute("stroke", "#ef4444"); // red-500
+              ln.setAttribute("stroke-width", "3");
+              ln.setAttribute("stroke-linecap", "round");
+              group.appendChild(ln);
+            });
+          }
+        } catch (e) {
+          console.warn("Nepodarilo sa vykresliť X pre", id, e);
+        }
+
+    
+        setHighlight(group, false, mainShape);
+
+        setPicked((prev) => {
+          if (!prev.has(id)) return prev;
+          const next = new Set(prev);
+          next.delete(id);
+          return next;
+        });
+
+        return; 
       }
 
-      
+
+    
       group.style.cursor = "pointer";
-
-      // init highlight podľa picked
       setHighlight(group, picked.has(id), mainShape);
-
-      // toggle klik s limitom MAX_TABLES
       group.addEventListener("click", () => {
         setPicked((prev) => {
           const already = prev.has(id);
@@ -151,7 +213,7 @@ export default function SectorDetailModal({
     });
 
     setSeatsMap(localSeats);
-  }, [raw, unavailableSet, isOpen, picked]);
+  }, [raw, unavailableSet, isOpen, picked, unavailableTables]);
 
   const totalSeats = useMemo(() => {
     let sum = 0;
@@ -182,14 +244,12 @@ export default function SectorDetailModal({
   return (
     <div className="fixed inset-0 z-[80] bg-black/60">
       <div className="absolute inset-0 flex flex-col">
-        {/* Toolbar –  */}
+        {/* Toolbar */}
         <div className="bg-white/90 px-3 py-2 shadow sm:px-4">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             {/* Info časť */}
             <div className="space-y-1 text-xs text-stone-700 sm:text-sm">
-              <div className="font-medium">
-                Sektor {sector}
-              </div>
+              <div className="font-medium">Sektor {sector}</div>
 
               <div className="flex flex-wrap gap-x-2 gap-y-1">
                 <span>
@@ -206,7 +266,9 @@ export default function SectorDetailModal({
               </div>
 
               <div className="text-[11px] text-stone-500">
-                Sivé stoly sú už obsadené. Max 2 stoly na rezerváciu.
+                {loadingUnavailable
+                  ? "Načítavam obsadené stoly…"
+                  : "Sivé/preškrtnuté stoly sú už obsadené. Max 2 stoly na rezerváciu."}
               </div>
             </div>
 
@@ -248,7 +310,6 @@ export default function SectorDetailModal({
             </div>
           </div>
         </div>
-
 
         {/* Plátno */}
         <div className="relative isolate flex-1 overflow-auto bg-white">

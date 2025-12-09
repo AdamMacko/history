@@ -10,7 +10,7 @@ const auth = new google.auth.JWT({
 
 const sheets = google.sheets({ version: "v4", auth });
 
-// ↙ použijeme jeden range na čítanie aj zápis
+// použijeme jeden range na čítanie aj zápis
 const SHEET_RANGE = "rezervacie!A:Z";
 
 export async function appendReservationRow(values: (string | number | null)[]) {
@@ -31,10 +31,22 @@ export async function appendReservationRow(values: (string | number | null)[]) {
   });
 }
 
-/**
- * Vráti množinu stolov (napr. "T27", "T2"...), ktoré sú už na daný deň obsadené.
- * dateStr musí byť vo formáte DD.MM.RRRR – presne ako ho zapisuješ do stĺpca DÁTUM (E).
- */
+// pomocná funkcia: "09.12.2025" -> "9.12.2025", ostripuje medzery
+function normalizeDateStr(raw: string): string {
+  const parts = raw.split(".");
+  if (parts.length < 3) return raw.trim();
+
+  const d = parts[0]?.trim();
+  const m = parts[1]?.trim();
+  const y = parts[2]?.trim();
+
+  const day = String(Number(d));   // "09" -> "9"
+  const month = String(Number(m)); // "04" -> "4"
+
+  return `${day}.${month}.${y}`;
+}
+
+
 export async function getReservedTablesForDate(
   dateStr: string
 ): Promise<Set<string>> {
@@ -52,13 +64,18 @@ export async function getReservedTablesForDate(
   const values = res.data.values ?? [];
   const reserved = new Set<string>();
 
+  const normalizedTargetDate = normalizeDateStr(dateStr);
+
   // predpoklad: 1. riadok = hlavička → začíname od indexu 1
   for (let i = 1; i < values.length; i++) {
     const row = values[i];
     if (!row) continue;
 
-    const rowDate = row[4]; // E: Dátum (DD.MM.RRRR) – podľa tvojho zápisu
-    if (rowDate !== dateStr) continue;
+    const rowDateRaw = row[4]; // E: Dátum
+    if (!rowDateRaw) continue;
+
+    const rowDate = normalizeDateStr(String(rowDateRaw));
+    if (rowDate !== normalizedTargetDate) continue;
 
     const tablesColRaw = row[7]; // H: Stôl (napr. "F: T27, T28")
     if (!tablesColRaw) continue;
@@ -75,7 +92,7 @@ export async function getReservedTablesForDate(
       .split(",")
       .map((s) => s.trim())
       .filter(Boolean)
-      .forEach((t) => reserved.add(t));
+      .forEach((t) => reserved.add(t.toUpperCase()));
   }
 
   return reserved;
