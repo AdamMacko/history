@@ -28,7 +28,8 @@ export default function ReservationPage() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [when, setWhen] = useState<string>("");
-  const [partySize, setPartySize] = useState<number>(2);
+  // dôležitá zmena: partySize ako string
+  const [partySize, setPartySize] = useState<string>("2");
   const [note, setNote] = useState("");
 
   // Výber sektora
@@ -107,6 +108,8 @@ export default function ReservationPage() {
     setStatus("idle");
     setStatusMessage(null);
 
+    const partySizeNum = Number.parseInt(partySize || "0", 10);
+
     // === FRONTEND VALIDÁCIE ===
     if (!fullName.trim()) {
       setStatus("error");
@@ -126,7 +129,7 @@ export default function ReservationPage() {
       return;
     }
 
-    if (partySize < 1 || partySize > MAX_PEOPLE) {
+    if (!Number.isFinite(partySizeNum) || partySizeNum < 1 || partySizeNum > MAX_PEOPLE) {
       setStatus("error");
       setStatusMessage(
         `Počet osôb musí byť medzi 1 a ${MAX_PEOPLE}.`
@@ -211,7 +214,7 @@ export default function ReservationPage() {
           fullName,
           email,
           when,
-          partySize,
+          partySize: partySizeNum,
           selectedSector,
           selectedTables,
           note: note.trim() || undefined,
@@ -239,7 +242,7 @@ export default function ReservationPage() {
       setFullName("");
       setEmail("");
       setWhen("");
-      setPartySize(2);
+      setPartySize("2");
       setSelectedSector(null);
       setSelectedTables([]);
       setTotalSeatsPicked(0);
@@ -348,9 +351,19 @@ export default function ReservationPage() {
               max={MAX_PEOPLE}
               required
               value={partySize}
-              onChange={(e) =>
-                setPartySize(parseInt(e.target.value || "1", 10))
-              }
+              onChange={(e) => {
+                const val = e.target.value;
+                // povolíme prázdny string aby šlo normálne mazať
+                if (val === "") {
+                  setPartySize("");
+                  return;
+                }
+                // necháme len čísla a max limit
+                const num = Number.parseInt(val, 10);
+                if (!Number.isNaN(num) && num <= MAX_PEOPLE) {
+                  setPartySize(String(num));
+                }
+              }}
               className="w-40 rounded-xl border border-stone-300 bg-white px-3 py-2 outline-none ring-0 focus:border-stone-400"
             />
           </div>
@@ -392,7 +405,7 @@ export default function ReservationPage() {
             </div>
             <div className="text-stone-600">
               Spolu sedačiek: {totalSeatsPicked} / potrebných{" "}
-              {partySize}
+              {Number.parseInt(partySize || "0", 10)}
             </div>
           </div>
         </div>
@@ -431,7 +444,7 @@ export default function ReservationPage() {
               setFullName("");
               setEmail("");
               setWhen("");
-              setPartySize(2);
+              setPartySize("2");
               setSelectedSector(null);
               setSelectedTables([]);
               setTotalSeatsPicked(0);
