@@ -10,12 +10,12 @@ import { Menu, X, MapPin, Instagram, Facebook } from "lucide-react";
 type NavItem = { id: string; label: string };
 
 const NAV_ITEMS: NavItem[] = [
-  { id: "aboutus",  label: "O nás" },
-  { id: "program",  label: "Program" },
-  { id: "tools",    label: "Vybavenie" },
-  { id: "gallery",  label: "Galéria" },
+  { id: "aboutus", label: "O nás" },
+  { id: "program", label: "Program" },
+  { id: "tools", label: "Vybavenie" },
+  { id: "gallery", label: "Galéria" },
   { id: "partners", label: "Partneri" },
-  { id: "contact",  label: "Kontakt" },
+  { id: "contact", label: "Kontakt" },
 ];
 
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -31,10 +31,10 @@ export default function Header() {
   // helper pre zakázané odkazy
   const disabledAnchorProps: Partial<React.AnchorHTMLAttributes<HTMLAnchorElement>> = navDisabled
     ? {
-        onClick: (e) => e.preventDefault(),
-        tabIndex: -1,
-        "aria-disabled": true,
-      }
+      onClick: (e) => e.preventDefault(),
+      tabIndex: -1,
+      "aria-disabled": true,
+    }
     : {};
 
   const disabledClasses = navDisabled ? "cursor-not-allowed text-stone-400" : "";
@@ -118,16 +118,17 @@ export default function Header() {
             className={`inline-flex items-center ${disabledClasses}`}
             {...disabledAnchorProps}
           >
-            <div className="relative h-10 w-[150px] md:h-12 md:w-[190px]">
+            <div className="relative h-12 w-[220px] md:h-14 md:w-[260px]">
               <Image
-                src="/logo.png"
+                src="/logo.svg"
                 alt="History logo"
                 fill
-                sizes="(max-width:768px) 150px, 190px"
+                sizes="(max-width:768px) 220px, 260px"
                 priority
                 className="object-contain"
               />
             </div>
+
             <span className="sr-only">History Art &amp; Music Club</span>
           </a>
 
@@ -146,9 +147,8 @@ export default function Header() {
                   <a
                     href={`#${item.id}`}
                     onClick={(e) => handleAnchor(e, item.id)}
-                    className={`relative z-10 inline-flex items-center rounded-full px-4 py-2 text-sm font-medium ${
-                      navDisabled ? "text-stone-400" : "text-stone-700 hover:text-stone-900"
-                    } ${disabledClasses}`}
+                    className={`relative z-10 inline-flex items-center rounded-full px-4 py-2 text-sm font-medium ${navDisabled ? "text-stone-400" : "text-stone-700 hover:text-stone-900"
+                      } ${disabledClasses}`}
                     {...disabledAnchorProps}
                   >
                     {item.label}
@@ -197,9 +197,8 @@ export default function Header() {
           {/* Mobile burger – na /rezervacia vypneme */}
           <button
             type="button"
-            className={`inline-flex items-center justify-center rounded-xl border border-stone-300 bg-white p-2 text-stone-700 hover:bg-stone-100 md:hidden ${
-              navDisabled ? "cursor-not-allowed opacity-60" : ""
-            }`}
+            className={`inline-flex items-center justify-center rounded-xl border border-stone-300 bg-white p-2 text-stone-700 hover:bg-stone-100 md:hidden ${navDisabled ? "cursor-not-allowed opacity-60" : ""
+              }`}
             aria-expanded={menuOpen && !navDisabled}
             onClick={() => {
               if (navDisabled) return;

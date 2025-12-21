@@ -48,30 +48,27 @@ export default function SectorModal({ open, value, onSelect, onClose }: Props) {
     };
 
     // delegácia klikov (funguje aj po re-rendre SVG)
-   // nahrádza pôvodný onClick handler v SectorModal
-const onClick = (e: MouseEvent) => {
-  const host = hostRef.current!;
-  const pattern = /^sector-([A-Z](\d+)?)$/i; // A, B1, B2, C, D, E, F, A1…
+    // nahrádza pôvodný onClick handler v SectorModal
+    const onClick = (e: MouseEvent) => {
+      const host = hostRef.current!;
+      const pattern = /^sector-([A-Z](\d+)?)$/i; 
 
-  let el: Element | null = e.target as Element;
-  let picked: string | null = null;
+      let el: Element | null = e.target as Element;
+      let picked: string | null = null;
 
-  while (el && el !== host) {
-    if (el instanceof SVGGElement) {
-      const m = el.id.match(pattern);
-      if (m) {
-        picked = m[1].toUpperCase(); // "B1", "C", …
-        break;
+      while (el && el !== host) {
+        if (el instanceof SVGGElement) {
+          const m = el.id.match(pattern);
+          if (m) {
+            picked = m[1].toUpperCase(); // "B1", "C", …
+            break;
+          }
+        }
+        el = el.parentElement;
       }
-    }
-    el = el.parentElement;
-  }
-  if (!picked) return;
-  onSelect(picked);
-};
-
-
-
+      if (!picked) return;
+      onSelect(picked);
+    };
 
     host.addEventListener("click", onClick);
     // malé oneskorenie, kým sa SVG vloží do DOM

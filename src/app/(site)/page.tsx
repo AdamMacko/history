@@ -6,12 +6,13 @@ import Partners from "./sections/Partners";
 import Contact from "./sections/Contact";
 import HeroSlideshow from "../components/HeroSlideshow";
 import SiteFooter from "../components/SiteFooter";
-
+import SnowfallClient from "../components/SnowFallClient";
 export const dynamic = "force-dynamic";
 
 export default function Home() {
   return (
     <>
+      <SnowfallClient />
       <HeroSlideshow />
       <Aboutus />
       <Program />

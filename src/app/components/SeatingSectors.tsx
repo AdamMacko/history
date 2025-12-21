@@ -32,9 +32,9 @@ export default function SeatingSectors({ selected, onSelect, className }: Props)
       root.querySelectorAll<SVGGElement>(
         'g[id^="sector-"]:not([id$="-shape"]):not([id$="-shapeSmall"]):not([id$="-shapeLine"]):not([id$="-label"]):not([id$="-labelSmall"]):not([id$="-labelLine"])'
       )
-    ).filter(g => g.id !== "nonClick"); // pre istotu
+    ).filter(g => g.id !== "nonClick");
 
-    // pridaj základné a11y / dátové atribúty
+    
     sectors.forEach(g => {
       g.setAttribute("tabindex", "0");
       g.setAttribute("role", "button");

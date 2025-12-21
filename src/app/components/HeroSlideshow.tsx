@@ -89,8 +89,6 @@ export default function HeroSlideshow() {
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-l from-black/85 via-black/40 to-transparent" />
       </div>
 
-
-      {/* Textový overlay */}
       {/* Textový overlay */}
       <div className="pointer-events-none absolute inset-0 flex items-start justify-end">
         <div className="pointer-events-auto px-6 py-4 text-right md:px-10 md:py-6">
@@ -99,8 +97,6 @@ export default function HeroSlideshow() {
           </p>
         </div>
       </div>
-
-
 
       {/* Bulky dole */}
       <div className="pointer-events-none absolute inset-x-0 bottom-3 flex justify-center">
