@@ -422,7 +422,7 @@ export default function ReservationPage() {
             className="mt-2 w-full rounded-xl border border-stone-300 bg-white px-3 py-2 outline-none ring-0 focus:border-stone-400"
           />
         </div>
-
+        <p className="mt-1 text-xs text-stone-500">*Osobné údaje spracúvame výlučne na účely vybavenia rezervácie.</p>
         {status !== "idle" && statusMessage && (
           <div
             className={[
