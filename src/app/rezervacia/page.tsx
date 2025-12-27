@@ -10,7 +10,7 @@ const CUTOFF_BOOKING_HOUR = 19;
 const CUTOFF_BOOKING_MINUTE = 30;
 
 const MAX_ARRIVAL_HOUR = 21;
-const MAX_ARRIVAL_MINUTE = 30;
+const MAX_ARRIVAL_MINUTE = 0;
 const MAX_PEOPLE = 16;
 
 function isSameCalendarDay(a: Date, b: Date): boolean {
@@ -155,7 +155,7 @@ export default function ReservationPage() {
       return;
     }
 
-    // Celkový limit príchodu – najneskôr 21:30
+    // Celkový limit príchodu – najneskôr 21:00
     {
       const selectedMinutes =
         selected.getHours() * 60 + selected.getMinutes();
@@ -165,7 +165,7 @@ export default function ReservationPage() {
       if (selectedMinutes > maxArrivalMinutes) {
         setStatus("error");
         setStatusMessage(
-          "Najneskorší čas príchodu na rezervovaný stôl je 21:30."
+          "Najneskorší čas príchodu na rezervovaný stôl je 21:00."
         );
         return;
       }
@@ -334,7 +334,7 @@ export default function ReservationPage() {
           </div>
           <p className="mt-1 text-xs text-stone-500">
             Na dnešný večer je možné rezervovať najneskôr do 19:30. Najneskorší
-            čas príchodu na stôl je 21:30.
+            čas príchodu na stôl je 21:00.
           </p>
         </div>
 

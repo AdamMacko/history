@@ -47,14 +47,9 @@ function normalizeDateStr(raw: string): string {
 }
 
 
-export async function getReservedTablesForDate(
-  dateStr: string
-): Promise<Set<string>> {
+export async function getReservedTablesForDate(dateStr: string): Promise<Set<string>> {
   const spreadsheetId = process.env.GOOGLE_SHEETS_SPREADSHEET_ID;
-
-  if (!spreadsheetId) {
-    throw new Error("Missing GOOGLE_SHEETS_SPREADSHEET_ID");
-  }
+  if (!spreadsheetId) throw new Error("Missing GOOGLE_SHEETS_SPREADSHEET_ID");
 
   const res = await sheets.spreadsheets.values.get({
     spreadsheetId,
@@ -63,36 +58,23 @@ export async function getReservedTablesForDate(
 
   const values = res.data.values ?? [];
   const reserved = new Set<string>();
+  const wanted = normalizeDateStr(dateStr);
 
-  const normalizedTargetDate = normalizeDateStr(dateStr);
+  for (let i = 0; i < values.length; i++) {
+    const row = values[i] ?? [];
 
-  // predpoklad: 1. riadok = hlavička → začíname od indexu 1
-  for (let i = 1; i < values.length; i++) {
-    const row = values[i];
-    if (!row) continue;
+    const norm = normalizeDateStr(String(row[4] ?? ""));
+    if (!norm || norm !== wanted) continue;
 
-    const rowDateRaw = row[4]; // E: Dátum
-    if (!rowDateRaw) continue;
+    
+    const h = String(row[7] ?? "").toUpperCase();
+    if (!h) continue;
 
-    const rowDate = normalizeDateStr(String(rowDateRaw));
-    if (rowDate !== normalizedTargetDate) continue;
-
-    const tablesColRaw = row[7]; // H: Stôl (napr. "F: T27, T28")
-    if (!tablesColRaw) continue;
-
-    const tablesCol = String(tablesColRaw).trim();
-    if (!tablesCol) continue;
-
-    // odstránime sektor "F: " → necháme len "T27, T28"
-    const afterColon = tablesCol.includes(":")
-      ? tablesCol.split(":").slice(1).join(":")
-      : tablesCol;
-
-    afterColon
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean)
-      .forEach((t) => reserved.add(t.toUpperCase()));
+   
+    const matches = h.match(/T\s*\d+/gi) ?? [];
+    matches
+      .map(t => t.replace(/\s+/g, "").toUpperCase())
+      .forEach(t => reserved.add(t));
   }
 
   return reserved;
