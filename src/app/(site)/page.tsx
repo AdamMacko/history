@@ -10,9 +10,9 @@ import SnowfallClient from "../components/SnowFallClient";
 export const dynamic = "force-dynamic";
 
 export default function Home() {
+  // for snowfall on web add " <SnowfallClient />" up to "<HeroSlideshow />"
   return (
     <>
-      <SnowfallClient />
       <HeroSlideshow />
       <Aboutus />
       <Program />
