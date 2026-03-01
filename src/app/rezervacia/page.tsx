@@ -12,6 +12,7 @@ const CUTOFF_BOOKING_MINUTE = 30;
 const MAX_ARRIVAL_HOUR = 21;
 const MAX_ARRIVAL_MINUTE = 0;
 const MAX_PEOPLE = 16;
+const FORCED_UNAVAILABLE_TABLES = ["T19", "T12"];
 
 function isSameCalendarDay(a: Date, b: Date): boolean {
   return (
@@ -83,16 +84,19 @@ export default function ReservationPage() {
         console.error("Chyba /api/reservation/unavailable:", json);
         setUnavailableTables([]);
       } else if (Array.isArray(json.tables)) {
-        setUnavailableTables(json.tables); // napr. ["T4","T5"]
+        const merged = Array.from(
+          new Set([...(json.tables as string[]), ...FORCED_UNAVAILABLE_TABLES])
+        );
+        setUnavailableTables(merged);
       } else {
-        setUnavailableTables([]);
+        setUnavailableTables([...FORCED_UNAVAILABLE_TABLES]);
       }
 
       // až keď máme odpoveď, otvoríme mapu so sektormi
       setSectorOpen(true);
     } catch (err) {
       console.error("CLIENT ERROR pri načítaní obsadených stolov:", err);
-      setUnavailableTables([]);
+      setUnavailableTables([...FORCED_UNAVAILABLE_TABLES]);
       setStatus("error");
       setStatusMessage(
         "Nepodarilo sa načítať obsadené stoly. Skús to prosím o chvíľu znova."
