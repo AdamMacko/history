@@ -49,5 +49,13 @@ export default defineType({
       title: "Vstupenky (link)",
       type: "url",
     }),
+
+    defineField({
+      name: "blockReservations",
+      title: "Zablokovať rezervácie na tento deň",
+      type: "boolean",
+      initialValue: false,
+      description: "Zaškrtni toto pole, ak sa lístky na podujatie predávajú externe (napríklad cez predpredaj) a nechceš povoliť bežné rezervácie stolov v kalendári na webe.",
+    }),
   ],
 });

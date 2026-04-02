@@ -32,7 +32,7 @@ export type ReservationMailPayload = {
 };
 
 export async function sendReservationEmails(payload: ReservationMailPayload) {
-  if (!transporter) return; // nech nepadá, keď chýbajú env
+  if (!transporter) return;
 
   const { email, fullName, dateStr, timeStr, partySize, tablesText, note } =
     payload;

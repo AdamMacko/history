@@ -51,7 +51,7 @@ export default function SectorModal({ open, value, onSelect, onClose }: Props) {
     // nahrádza pôvodný onClick handler v SectorModal
     const onClick = (e: MouseEvent) => {
       const host = hostRef.current!;
-      const pattern = /^sector-([A-Z](\d+)?)$/i; 
+      const pattern = /^sector-([A-Z](\d+)?)$/i;
 
       let el: Element | null = e.target as Element;
       let picked: string | null = null;
@@ -80,29 +80,61 @@ export default function SectorModal({ open, value, onSelect, onClose }: Props) {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/60" onClick={onClose} />
-      <div className="relative z-10 w-[min(1100px,95vw)] h-[min(85vh,800px)] rounded-2xl bg-white shadow-xl flex flex-col overflow-hidden">
-        <div className="flex items-center justify-between px-4 py-3 border-b">
-          <div className="text-sm text-stone-600">
-            Klikni na sektor {value ? `(aktuálne: ${value})` : ""}
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+      {/* Tmavé pozadie s rozostrením */}
+      <div 
+        className="absolute inset-0 bg-stone-900/60 backdrop-blur-sm transition-opacity" 
+        onClick={onClose} 
+      />
+      
+      {/* Hlavný panel modalu */}
+      <div className="relative z-10 w-full max-w-5xl h-[90vh] sm:h-[85vh] flex flex-col bg-white rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden ring-1 ring-black/5">
+        
+        {/* Hlavička */}
+        <div className="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-stone-100 bg-white">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+            <h2 className="text-base sm:text-lg font-semibold text-stone-800">
+              Výber sektora na mape
+            </h2>
+            {value && (
+              <span className="inline-flex items-center rounded-md bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-700 ring-1 ring-inset ring-indigo-700/10">
+                Vybrané: {value}
+              </span>
+            )}
           </div>
-          <button onClick={onClose} className="rounded-lg border px-3 py-1.5 text-sm hover:bg-stone-50">
-            Zavrieť
+          
+          <button 
+            onClick={onClose} 
+            className="p-2 -mr-2 text-stone-400 hover:text-stone-600 hover:bg-stone-100 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            aria-label="Zavrieť modal"
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 6 6 18"/>
+              <path d="m6 6 12 12"/>
+            </svg>
           </button>
         </div>
 
-        <div className="flex-1 overflow-auto p-3">
-          {/* injekt SVG – vynútime správne škálovanie */}
-          <div
-            ref={hostRef}
-            className="mx-auto w-full max-w-[1400px] [&>svg]:w-full [&>svg]:h-auto [&>svg]:block [&>svg]:max-h-[70vh]"
-            // ts-expect-error – inject SVG text
-            dangerouslySetInnerHTML={{
-              __html: svg.replace("<svg ", "<svg preserveAspectRatio='xMidYMid meet' "),
-            }}
-          />
+        {/* Obsah - Samotná mapa */}
+        <div className="flex-1 bg-stone-50/50 p-4 sm:p-8 overflow-hidden flex items-center justify-center relative">
+          {!svg ? (
+            // Loading state kým sa SVG stiahne
+            <div className="flex flex-col items-center text-stone-400">
+              <div className="w-8 h-8 border-4 border-stone-200 border-t-indigo-500 rounded-full animate-spin mb-3"></div>
+              <span className="text-sm font-medium">Načítavam mapu...</span>
+            </div>
+          ) : (
+            // Injektované SVG - vynútené centrovanie a udržanie v bounds
+            <div
+              ref={hostRef}
+              className="w-full h-full flex items-center justify-center [&>svg]:max-w-full [&>svg]:max-h-full [&>svg]:w-auto [&>svg]:h-auto drop-shadow-sm transition-transform duration-300 hover:[&>svg]:drop-shadow-md"
+              dangerouslySetInnerHTML={{
+                __html: svg.replace("<svg ", "<svg preserveAspectRatio='xMidYMid meet' "),
+              }}
+            />
+          )}
         </div>
+        
       </div>
     </div>
   );

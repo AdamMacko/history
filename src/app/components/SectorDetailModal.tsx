@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { X, Check, Trash2 } from "lucide-react";
+import { X, Check, Trash2, ArrowLeft } from "lucide-react";
 
 type Props = {
   open: boolean;
@@ -12,6 +12,7 @@ type Props = {
     meta: { totalSeats: number; perTable: Record<string, number> }
   ) => void;
   onClose: () => void;
+  onBack?: () => void; // <--- NOVÁ PROP NA NÁVRAT
   unavailableTables?: string[]; // napr. ["T21","T5","T27"]
   loadingUnavailable?: boolean;
 };
@@ -24,6 +25,7 @@ export default function SectorDetailModal({
   value,
   onChange,
   onClose,
+  onBack,
   unavailableTables,
   loadingUnavailable,
 }: Props) {
@@ -81,9 +83,6 @@ export default function SectorDetailModal({
     svg.style.height = "100%";
     svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
 
-    console.log("UNAVAILABLE TABLES PROP:", unavailableTables);
-    console.log("UNAVAILABLE SET:", Array.from(unavailableSet));
-
     const localSeats: Record<string, number> = {};
     const tables = svg.querySelectorAll("g[id^='T']");
 
@@ -111,19 +110,16 @@ export default function SectorDetailModal({
       }
       localSeats[id] = seats;
       const isUnavailable = unavailableSet.has(upperId);
-      console.log("TABLE", id, "isUnavailable =", isUnavailable);
 
       if (isUnavailable) {
-      
         group.style.cursor = "not-allowed";
         group.style.pointerEvents = "none";
 
-     
         const children = group.querySelectorAll<SVGElement>("*");
 
         if (mainShape) {
-          (mainShape.style as any).fill = "#e5e7eb"; 
-          (mainShape.style as any).stroke = "#9ca3af"; 
+          (mainShape.style as any).fill = "#e5e7eb";
+          (mainShape.style as any).stroke = "#9ca3af";
           (mainShape.style as any).strokeWidth = "2.5px";
         }
 
@@ -131,31 +127,23 @@ export default function SectorDetailModal({
           (child.style as any).opacity = "0.75";
           (child.style as any).filter = "grayscale(1)";
 
-        
           if (child.tagName.toLowerCase() === "text") {
-            (child.style as any).fill = "#4b5563"; 
+            (child.style as any).fill = "#4b5563";
           }
         });
 
-     
         try {
           const targetForX = mainShape ?? group;
           // @ts-ignore
           const bbox = targetForX.getBBox?.();
           if (bbox) {
-            const line1 = document.createElementNS(
-              "http://www.w3.org/2000/svg",
-              "line"
-            );
+            const line1 = document.createElementNS("http://www.w3.org/2000/svg", "line");
             line1.setAttribute("x1", String(bbox.x));
             line1.setAttribute("y1", String(bbox.y));
             line1.setAttribute("x2", String(bbox.x + bbox.width));
             line1.setAttribute("y2", String(bbox.y + bbox.height));
 
-            const line2 = document.createElementNS(
-              "http://www.w3.org/2000/svg",
-              "line"
-            );
+            const line2 = document.createElementNS("http://www.w3.org/2000/svg", "line");
             line2.setAttribute("x1", String(bbox.x + bbox.width));
             line2.setAttribute("y1", String(bbox.y));
             line2.setAttribute("x2", String(bbox.x));
@@ -172,7 +160,6 @@ export default function SectorDetailModal({
           console.warn("Nepodarilo sa vykresliť X pre", id, e);
         }
 
-    
         setHighlight(group, false, mainShape);
 
         setPicked((prev) => {
@@ -182,13 +169,12 @@ export default function SectorDetailModal({
           return next;
         });
 
-        return; 
+        return;
       }
 
-
-    
       group.style.cursor = "pointer";
       setHighlight(group, picked.has(id), mainShape);
+      
       group.addEventListener("click", () => {
         setPicked((prev) => {
           const already = prev.has(id);
@@ -228,8 +214,7 @@ export default function SectorDetailModal({
   ) {
     const target = mainShape ?? group;
     if (on) {
-      (target as any).style.filter =
-        "drop-shadow(0 0 0.8rem rgba(59,130,246,0.6))";
+      (target as any).style.filter = "drop-shadow(0 0 0.8rem rgba(59,130,246,0.6))";
       (target as any).style.stroke = "#2563eb";
       (target as any).style.strokeWidth = "2.5px";
     } else {
@@ -242,46 +227,82 @@ export default function SectorDetailModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[80] bg-black/60">
-      <div className="absolute inset-0 flex flex-col">
-        {/* Toolbar */}
-        <div className="bg-white/90 px-3 py-2 shadow sm:px-4">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            {/* Info časť */}
-            <div className="space-y-1 text-xs text-stone-700 sm:text-sm">
-              <div className="font-medium">Sektor {sector}</div>
+    <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 sm:p-6">
+      {/* Overlay s rozostrením */}
+      <div 
+        className="absolute inset-0 bg-stone-900/60 backdrop-blur-sm transition-opacity" 
+        onClick={onClose} 
+      />
 
-              <div className="flex flex-wrap gap-x-2 gap-y-1">
+      {/* Modal Container */}
+      <div className="relative z-10 w-full max-w-6xl h-[90vh] flex flex-col bg-white rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden ring-1 ring-black/5">
+        
+        {/* Hlavička - Top Bar */}
+        <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-stone-100 bg-white">
+          {/* Tlačidlo Späť */}
+          <button
+            type="button"
+            onClick={onBack}
+            className="group flex items-center gap-2 px-2 py-1.5 -ml-2 rounded-lg text-stone-500 hover:text-stone-900 hover:bg-stone-100 transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5 text-stone-400 group-hover:text-stone-600 transition-colors" />
+            <span className="text-sm font-medium hidden sm:block">Späť na mapu</span>
+            <span className="text-sm font-medium sm:hidden">Späť</span>
+          </button>
+
+          {/* Nadpis */}
+          <h2 className="text-lg sm:text-xl font-bold text-stone-800 absolute left-1/2 -translate-x-1/2">
+            Sektor {sector}
+          </h2>
+
+          {/* Tlačidlo Zavrieť */}
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-2 -mr-2 text-stone-400 hover:text-stone-600 hover:bg-stone-100 rounded-full transition-colors"
+            aria-label="Zavrieť modal"
+          >
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+
+        {/* Informačný panel a Akcie - Sub-header */}
+        <div className="bg-stone-50 border-b border-stone-100 px-4 sm:px-6 py-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            
+            {/* Info text */}
+            <div className="flex flex-col gap-1">
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-stone-700">
                 <span>
                   Vybrané stoly:{" "}
-                  <span className="font-semibold">
+                  <span className="font-semibold text-stone-900">
                     {Array.from(picked).join(", ") || "—"}
                   </span>
                 </span>
-                <span className="text-stone-400">•</span>
+                <span className="text-stone-300 hidden sm:inline">•</span>
                 <span>
                   Spolu miest:{" "}
-                  <span className="font-semibold">{totalSeats}</span>
+                  <span className="font-semibold text-blue-600">{totalSeats}</span>
                 </span>
               </div>
-
-              <div className="text-[11px] text-stone-500">
+              <div className="text-xs text-stone-500">
                 {loadingUnavailable
                   ? "Načítavam obsadené stoly…"
-                  : "Sivé/preškrtnuté stoly sú už obsadené. Max 2 stoly na rezerváciu."}
+                  : `Sivé/preškrtnuté stoly sú obsadené. Max ${MAX_TABLES} stoly.`}
               </div>
             </div>
 
-            {/* Tlačidlá */}
-            <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+            {/* Akčné tlačidlá */}
+            <div className="flex items-center gap-2 sm:gap-3">
               <button
                 type="button"
                 onClick={() => setPicked(new Set())}
-                className="inline-flex items-center gap-1 rounded-xl border border-stone-300 bg-white px-3 py-1.5 text-xs font-medium hover:bg-stone-50 sm:text-sm"
+                disabled={picked.size === 0}
+                className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-stone-600 bg-white border border-stone-200 rounded-lg hover:bg-stone-50 hover:text-red-600 disabled:opacity-50 disabled:hover:text-stone-600 disabled:hover:bg-white transition-colors"
                 title="Vymazať výber"
               >
-                <Trash2 className="h-4 w-4" />
-                Vymazať
+                <Trash2 className="w-4 h-4" />
+                <span className="hidden sm:inline">Vymazať</span>
               </button>
 
               <button
@@ -293,28 +314,38 @@ export default function SectorDetailModal({
                   });
                   onClose();
                 }}
-                className="btn-accent inline-flex items-center gap-2 px-4 py-1.5 text-xs sm:text-sm"
+                disabled={picked.size === 0}
+                className={`
+                  btn-accent flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-all
+                  ${picked.size === 0 
+                    ? "bg-stone-100 text-stone-400 cursor-not-allowed" 
+                    : "bg-blue-600 text-white hover:bg-blue-700 shadow-sm"}
+                `}
               >
-                <Check className="h-4 w-4" />
+                <Check className="w-4 h-4" />
                 Potvrdiť výber
-              </button>
-
-              <button
-                type="button"
-                onClick={onClose}
-                className="inline-flex items-center gap-2 rounded-xl border border-stone-300 bg-white px-3 py-1.5 text-xs font-medium hover:bg-stone-50 sm:text-sm"
-              >
-                <X className="h-4 w-4" />
-                Zavrieť
               </button>
             </div>
           </div>
         </div>
 
-        {/* Plátno */}
-        <div className="relative isolate flex-1 overflow-auto bg-white">
-          <div ref={hostRef} className="h-full w-full p-4" />
+        {/* Samotná mapa sektora */}
+        <div className="flex-1 bg-white p-4 sm:p-8 overflow-hidden relative flex items-center justify-center">
+          {!raw ? (
+            <div className="flex flex-col items-center">
+              <div className="w-8 h-8 border-4 border-stone-200 border-t-blue-600 rounded-full animate-spin mb-3" />
+              <p className="text-stone-400 font-medium text-sm">Načítavam sektor...</p>
+            </div>
+          ) : (
+            <div 
+              ref={hostRef} 
+              className="w-full h-full flex items-center justify-center 
+                         [&>svg]:max-w-full [&>svg]:max-h-full [&>svg]:w-auto [&>svg]:h-auto 
+                         [&>svg]:block drop-shadow-sm" 
+            />
+          )}
         </div>
+        
       </div>
     </div>
   );
