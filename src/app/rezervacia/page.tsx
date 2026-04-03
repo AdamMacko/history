@@ -76,7 +76,7 @@ export default function ReservationPage() {
     if (blockedDates.includes(justDate)) {
       setWhen(""); // Vymaže neplatný výber
       // Nastavíme lokálny error presne pod políčko dátumu
-      setDateError("Na tento deň nie je možné vytvoriť rezerváciu. Lístky sa predávajú externe.");
+      setDateError("Na tento deň nie je možné vytvoriť rezerváciu. Vstupenky sa predávajú externe.(Pozri sekciu program)");
       setSelectedSector(null);
       setSelectedTables([]);
       return;
@@ -488,7 +488,7 @@ export default function ReservationPage() {
               setFullName("");
               setEmail("");
               setWhen("");
-              setDateError(null); // Resetujeme aj dateError
+              setDateError(null);
               setPartySize("2");
               setSelectedSector(null);
               setSelectedTables([]);
